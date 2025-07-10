@@ -1,17 +1,49 @@
 package com.recipe_manager
 
+data class RecipeIngredient(
+    var ingredient: Ingredient,
+    var amount: Double,
+    var unit: String,
+)
+
+
 data class Recipe(
     var name: String,
     var timeToCook: String,
     var description: String,
-    var ingredients: MutableMap<Double, Ingredient> = mutableMapOf(),
+    var ingredients: MutableMap<String, RecipeIngredient> = mutableMapOf(),
     var instructions: String,
-    var totalCarbs: Double,
-    var estimatedCost: Double,
 )
 {
+    val totalCarbs: Double
+        get() = ingredients.values.sumOf { it.ingredient.carbs * it.amount }
 
-    class Recipe(name: String, timeToCook: String, description: String, ingredients: MutableMap<Double, Ingredient>, instructions: String, totalCarbs: Double, estimatedCost: Double)
+    val totalSugar: Double
+        get() = ingredients.values.sumOf { it.ingredient.sugar * it.amount }
+
+    val estimatedCost: Double
+        get() = ingredients.values.sumOf { it.ingredient.cost * it.amount }
+
+    var timesMade: Int = 0
+
+    var isFavorite = false
+
+    fun incrementTimesMade() {
+        timesMade++
+        for(recipeIngredient in ingredients.values) {
+            recipeIngredient.ingredient.currentAmount -= recipeIngredient.amount
+        }
+
+    }
+
+    fun returnIngredients(): MutableList<String> {
+        var allIngredients = mutableListOf<String>()
+        for(name in ingredients.keys) {
+            allIngredients.add(name)
+        }
+
+        return allIngredients
+    }
 
 
 }

@@ -1,12 +1,13 @@
 package com.recipe_manager
 
+import com.google.gson.Gson
 import java.io.File
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 
-object File_Operations {
+object FileOperations {
 
-    val gson = GsonBuilder().setPrettyPrinting().create()
+    val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
     private const val INGREDIENTS_FILE = "C:\\Users\\Destr\\Documents\\Recipes\\ingredients.json"
     private const val RECIPES_FILE = "C:\\Users\\Destr\\Documents\\Recipes\\recipes.json"
@@ -57,6 +58,12 @@ object File_Operations {
     fun addRecipe(newRecipe: Recipe) {
         val recipes = loadRecipes()
         recipes[newRecipe.name] = newRecipe
+        saveRecipes(recipes)
+    }
+
+    fun deleteRecipe(recipe: Recipe) {
+        val recipes = loadRecipes()
+        recipes.remove(recipe.name)
         saveRecipes(recipes)
     }
 
