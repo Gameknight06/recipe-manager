@@ -6,7 +6,8 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 
-<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="505.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.recipe_manager.RecipeViewGUI" styleClass="recipe-view-root">
+<?import javafx.scene.control.skin.TabPaneSkin.TabControlButtons?>
+<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.recipe_manager.RecipeViewGUI" styleClass="recipe-view-root">
     <children>
         <BorderPane fx:id="mainContentPane">
             <top>
@@ -30,12 +31,22 @@
                     <content>
                         <VBox fx:id="recipeContainer" alignment="TOP_CENTER" spacing="10.0">
                             <padding>
-                                <Insets bottom="60.0" left="5.0" right="5.0" top="5.0" />
+                                <Insets bottom="10.0" left="5.0" right="5.0" top="5.0" />
                             </padding>
                         </VBox>
                     </content>
                 </ScrollPane>
             </center>
+            <bottom>
+                <HBox fx:id="bottomPane" alignment="CENTER" prefHeight="55.0" spacing="15.0" styleClass="bottom-menu-pane">
+                    <padding>
+                        <Insets left="10.0" right="15.0" top="10.0" bottom="10.0"/>
+                    </padding>
+                    <children>
+                        <Label text="Recipe Manager" styleClass="title-3"/>
+                    </children>
+                </HBox>
+            </bottom>
         </BorderPane>
 
         <Region fx:id="drawerOverlay" visible="false"/>
@@ -52,10 +63,22 @@
             </children>
         </VBox>
 
-        <Button fx:id="addButton" mnemonicParsing="false" styleClass="fab-menu-button, elevated-1, accent, text-bold" text="+" StackPane.alignment="BOTTOM_RIGHT" onAction="#handleAddRecipeClick">
+        <MenuButton fx:id="addButton" mnemonicParsing="false" styleClass="fab-menu-button, elevated-1, accent, text-bold" text="+" StackPane.alignment="BOTTOM_RIGHT">
             <StackPane.margin>
-                <Insets bottom="20.0" right="20.0" />
+                <Insets bottom="10.0" right="15.0" />
             </StackPane.margin>
-        </Button>
+            <items>
+                <MenuItem text="Add Recipe" onAction="#handleAddRecipeClick">
+                    <graphic>
+                       <FontIcon iconLiteral="mdmz-set_meal"/>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Add Ingredient" onAction="#handleAddIngredientClick">
+                    <graphic>
+                        <FontIcon iconLiteral="mdal-list"/>
+                    </graphic>
+                </MenuItem>
+            </items>
+        </MenuButton>
     </children>
 </StackPane>

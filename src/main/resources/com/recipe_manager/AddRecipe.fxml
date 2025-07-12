@@ -32,15 +32,15 @@
                 <TextField fx:id="timeToCookField" promptText="e.g., 45 minutes"/>
 
                 <Label text="Description:" styleClass="text-bold"/>
-                <TextArea fx:id="descriptionArea" promptText="A short description of the recipe" wrapText="true"/>
+                <TextArea fx:id="descriptionArea" promptText=" A short description of the recipe" wrapText="true"/>
 
                 <Label text="Instructions:" styleClass="text-bold"/>
-                <TextArea fx:id="instructionArea" promptText="Step-by-step instructions" wrapText="true"/>
+                <TextArea fx:id="instructionArea" promptText=" Step-by-step instructions" wrapText="true"/>
 
                 <Separator/>
 
                 <Label text="Ingredients" styleClass="title-4"/>
-                <ListView fx:id="ingredientsListView" prefHeight="150.0"/>
+                <ListView fx:id="ingredientsListView" prefHeight="150.0" style="-fx-background-color: -color-bg-default"/>
 
                 <HBox spacing="10.0" alignment="BOTTOM_LEFT">
                     <VBox HBox.hgrow="ALWAYS">
@@ -53,7 +53,7 @@
                     </VBox>
                     <VBox>
                         <Label text="Unit"/>
-                        <TextField fx:id="unitField" promptText="e.g., cups" maxWidth="100.0"/>
+                        <ComboBox fx:id="unitComboBox" promptText="Unit" maxWidth="100.0"/>
                     </VBox>
                     <Button fx:id="addIngredientButton" onAction="#handleAddIngredient">
                         <graphic>
@@ -76,7 +76,7 @@
 
 
     <buttonTypes>
-        <ButtonType fx:id="saveButtonType" text="Save" buttonData="OK_DONE"/>
+        <ButtonType fx:id="saveButtonType" text="Save" buttonData="OK_DONE" />
         <ButtonType text="Cancel" buttonData="CANCEL_CLOSE"/>
     </buttonTypes>
 </DialogPane>

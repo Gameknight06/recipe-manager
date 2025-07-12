@@ -1,12 +1,11 @@
 package com.recipe_manager
 
-import atlantafx.base.theme.PrimerDark
+import atlantafx.base.theme.CupertinoDark
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.stage.Stage
-import javafx.stage.StageStyle
 
 
 /**
@@ -30,7 +29,7 @@ Outline for the program:
 class Main : Application() {
 
     override fun start(primaryStage: Stage) {
-        Application.setUserAgentStylesheet(PrimerDark().userAgentStylesheet)
+        Application.setUserAgentStylesheet(CupertinoDark().userAgentStylesheet)
 
         val fxmlLoader = FXMLLoader(Main::class.java.getResource("/com/recipe_manager/RecipeView.fxml"))
         val scene = Scene(fxmlLoader.load())
@@ -38,7 +37,7 @@ class Main : Application() {
             Main::class.java.getResource("/com/recipe_manager/styles/custom.css").toExternalForm()
         )
 
-        val image: Image = Image("com/recipe_manager/recipe.png")
+        val image: Image = Image("com/recipe_manager/images/recipe.png")
         primaryStage.icons.add(image)
 
         primaryStage.title = "Recipe Manager"

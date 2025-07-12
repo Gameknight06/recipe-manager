@@ -6,24 +6,19 @@
 
 .recipe-button {
     -fx-background-color: -color-accent-subtle;
-    -fx-pref-height: 290px;
-    -fx-max-height: 330px;
-    -fx-padding: 10px;
+    -fx-border-width: 3px 3px 3px 3px;
+    -fx-border-color: -color-border-muted;
 }
 
-.image-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-    -fx-background-insets: 0;
-    -fx-border-width: 0;
-}
-
-.image-button:hover {
-    -fx-opacity: 0.85;
+.recipe-image-container {
     -fx-cursor: hand;
 }
 
-.image-button:pressed {
+.recipe-image-container:hover {
+    -fx-opacity: 0.85;
+}
+
+.recipe-image-container:pressed {
     -fx-background-color: -color-accent-muted;
     -fx-scale-x: 0.99;
     -fx-scale-y: 0.99;
@@ -93,7 +88,7 @@
 }
 
 .navDrawer {
-    -fx-background-color: -color-border-muted;
+    -fx-background-color: -color-bg-overlay;
 }
 
 .nav-drawer-button {
@@ -114,23 +109,24 @@
 }
 
 .recipe-view-root {
-    -fx-background-color: -color-border-default;
+    -fx-background-color: -color-bg-subtle;
 }
 
 .add-recipe-scroll-pane {
-    -fx-background-color: -color-border-muted;
+    -fx-background-color: -color-bg-subtle;
 }
 
 .add-recipe-dialog {
-    -fx-background-color: -color-border-muted;
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-width: 3px 3px 3px 3px 3px;
+    -fx-border-color: -color-shadow-default;
 }
 
 .add-recipe-dialog > .header-panel {
-    -fx-background-color: -color-bg-subtle;
+    -fx-background-color: -color-bg-overlay;
     -fx-padding: 1em 1.5em 1em 1.5em;
     -fx-border-color: -color-border-default;
-    -fx-border-width: 0 0 2px 0;
-    -fx-background-insets: 0;
+    -fx-border-width: 8px 8px 8px 8px 8px;
 }
 
 .add-recipe-dialog > .header-panel > .label {
@@ -142,7 +138,7 @@
 }
 
 .add-recipe-dialog .button-bar {
-    -fx-background-color: -color-bg-subtle;
+    -fx-background-color: -color-bg-overlay;
     -fx-padding: 1em 3.5em 1em 3.5em;
     -fx-border-color: -color-border-default;
     -fx-border-width: 2px 0 0 0;
@@ -151,4 +147,13 @@
 .top-menu-pane {
     -fx-border-color: -color-border-muted;
     -fx-border-width: 0 0 3px 0;
+}
+
+.bottom-menu-pane {
+    -fx-border-color: -color-border-muted;
+    -fx-border-width: 3px 0 0 0;
+}
+
+.ingredient-tableview {
+    -fx-background-color: -color-bg-subtle;
 }

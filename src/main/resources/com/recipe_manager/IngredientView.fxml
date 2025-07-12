@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
+
+<VBox xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.recipe_manager.IngredientView"
+      spacing="15.0" style="-fx-background-color: -color-bg-default;">
+    <padding>
+        <Insets top="15.0" left="15.0" right="15.0" bottom="15.0" />
+    </padding>
+
+    <Label text="Your Ingredients" styleClass="title-2"/>
+    <Label text="A list of all the ingredients you have on hand." styleClass="text-muted"/>
+
+    <TableView fx:id="ingredientsTable" VBox.vgrow="ALWAYS" styleClass="ingredient-tableview, bordered, striped">
+        <columns>
+            <TableColumn fx:id="nameColumn" prefWidth="130.0" text="Name"/>
+            <TableColumn fx:id="locationColumn" prefWidth="120.0" text="Location"/>
+            <TableColumn fx:id="costColumn" prefWidth="80.0" text="Cost"/>
+            <TableColumn fx:id="unitColumn" prefWidth="100.0" text="Unit Type"/>
+            <TableColumn fx:id="currentAmountColumn" prefWidth="120.0" text="Current Amount"/>
+        </columns>
+    </TableView>
+</VBox>

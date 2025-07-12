@@ -1,11 +1,14 @@
 package com.recipe_manager
 
+import atlantafx.base.theme.Tweaks
 import javafx.animation.TranslateTransition
 import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
+import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.geometry.Side
 import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -25,14 +28,13 @@ class RecipeViewGUI {
 
     @FXML private lateinit var rootPane: StackPane
     @FXML private lateinit var recipeContainer: VBox
-    @FXML private lateinit var addButton: Button
+    @FXML private lateinit var addButton: MenuButton
     @FXML private lateinit var exitButton: Button
     @FXML private lateinit var recipeViewButton: Button
     @FXML private lateinit var ingredientViewButton: Button
     @FXML private lateinit var scrollPane: ScrollPane
 
 
-    @FXML private lateinit var menuButton: Button
     @FXML private lateinit var navDrawer: VBox
     @FXML private lateinit var drawerOverlay: Region
     @FXML private lateinit var mainContentPane: BorderPane
@@ -44,11 +46,11 @@ class RecipeViewGUI {
 
     @FXML
     private fun initialize() {
-        loadAndDisplayRecipes()
+        showRecipeView()
 
         exitButton.graphic = FontIcon(Material2AL.CLOSE)
-        recipeViewButton.graphic = FontIcon(Feather.BOOK_OPEN)
-        ingredientViewButton.graphic = FontIcon(Feather.PACKAGE)
+        recipeViewButton.graphic = FontIcon(Material2MZ.SET_MEAL)
+        ingredientViewButton.graphic = FontIcon(Material2AL.LIST)
         favoritesButton.graphic = FontIcon(Material2MZ.STAR)
 
         drawerOverlay.setOnMouseClicked {
@@ -60,10 +62,27 @@ class RecipeViewGUI {
         scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER;
         scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER;
 
+        addButton.styleClass.add(Tweaks.NO_ARROW)
+        addButton.popupSide = Side.TOP
 
         Platform.runLater { rootPane.requestFocus() }
     }
 
+    private fun showRecipeView() {
+        loadAndDisplayRecipes()
+    }
+
+    private fun showIngredientView() {
+        try {
+            val ingredientViewLoader = FXMLLoader(javaClass.getResource("IngredientView.fxml"))
+            val ingredientViewRoot = ingredientViewLoader.load<VBox>()
+
+            scrollPane.content = ingredientViewRoot
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("Error loading IngredientView.fxml")
+        }
+    }
 
     private fun toggleNavDrawer() {
         val drawerWidth = 200.0
@@ -86,7 +105,7 @@ class RecipeViewGUI {
     }
 
     private fun loadAndDisplayRecipes() {
-        recipeContainer.children.clear()
+        scrollPane.content = recipeContainer
 
         val recipes = FileOperations.loadRecipes()
 
@@ -94,13 +113,23 @@ class RecipeViewGUI {
             val placeholder = Label("No recipes found. Add one using the '+' button!")
             recipeContainer.children.add(placeholder)
         } else {
-            val placeholderImage = Image("com/recipe_manager/post-placeholder.jpg")
+            val placeholderImage = Image("com/recipe_manager/images/post-placeholder.jpg")
 
             for (recipe in recipes.values) {
-                val imageView = ImageView()
-                imageView.fitHeight = 215.0
+                val imageView = ImageView(placeholderImage)
+                imageView.fitHeight = 210.0
+                imageView.fitWidth = Double.MAX_VALUE
                 imageView.isPreserveRatio = true
-                imageView.image = placeholderImage
+
+                val imageContainer = StackPane(imageView).apply {
+                    prefHeight = 243.0
+                    styleClass.add("recipe-image-container")
+
+                    onMouseClicked = javafx.event.EventHandler {
+                        println("Clicked on recipe: ${recipe.name}")
+                        // TODO: Navigate to the recipe details view
+                    }
+                }
 
                 val imageButton = Button()
                 imageButton.graphic = imageView
@@ -119,9 +148,11 @@ class RecipeViewGUI {
                 val statsLabel = Label("Time to make: ${recipe.timeToCook} | Times Made: ${recipe.timesMade} \nIngredients: ${recipe.returnIngredients().joinToString(", ")}")
                 statsLabel.styleClass.add("recipe-stats")
 
-                val textContainer = VBox(titleLabel, descriptionLabel, statsLabel)
-                textContainer.alignment = Pos.TOP_LEFT
-                textContainer.spacing = 4.0
+                val textContainer = VBox(titleLabel, descriptionLabel, statsLabel).apply {
+                    alignment = Pos.TOP_LEFT
+                    spacing = 4.0
+                    padding = Insets(10.0, 15.0, 10.0, 15.0)
+                }
 
                 val editButton = Button()
                 editButton.graphic = FontIcon(Feather.EDIT)
@@ -153,15 +184,18 @@ class RecipeViewGUI {
                 buttonContainer.alignment = Pos.TOP_RIGHT
                 buttonContainer.spacing = 9.0
 
-                val bottomPane = BorderPane()
-                bottomPane.left = textContainer
-                bottomPane.right = buttonContainer
+                val bottomPane = BorderPane().apply {
+                    left = textContainer
+                    right = buttonContainer
+                    padding = Insets(0.0, 15.0, 10.0, 0.0)
+                }
 
-                val recipeCard = VBox(imageButton, bottomPane)
-                recipeCard.styleClass.addAll("elevated-1", "recipe-button")
-                recipeCard.maxWidth = Double.MAX_VALUE
-                recipeCard.alignment = Pos.TOP_LEFT
-                recipeCard.spacing = 8.0
+                val recipeCard = VBox(imageContainer, bottomPane).apply {
+                    styleClass.addAll("elevated-1", "recipe-button")
+                    maxWidth = Double.MAX_VALUE
+                    alignment = Pos.TOP_LEFT
+                    spacing = 8.0
+                }
 
                 recipeContainer.children.add(recipeCard)
             }
@@ -188,8 +222,8 @@ class RecipeViewGUI {
             val stage = rootPane.scene.window as Stage
             dialog.initOwner(stage)
 
-            dialog.width = stage.widthProperty().value * 0.90
-            dialog.height = stage.heightProperty().value * 0.90
+            dialog.width = stage.widthProperty().value * 0.85
+            dialog.height = stage.heightProperty().value * 0.65
 
             dialog.x = stage.x + (stage.width - dialog.width) / 2
             dialog.y = stage.y + (stage.height - dialog.height) / 2
@@ -223,12 +257,17 @@ class RecipeViewGUI {
         }
     }
 
-
     @FXML
     private fun handleAddIngredientClick() {
         println("Add Ingredient button clicked!")
-        // TODO: Load and display the add ingredient view
+
+        val alert = Alert(Alert.AlertType.INFORMATION)
+        alert.title = "Coming Soon!"
+        alert.headerText = null
+        alert.contentText = "This feature is coming soon!"
+        alert.showAndWait()
     }
+
 
     @FXML
     private fun handleMenuClick() {
@@ -241,7 +280,7 @@ class RecipeViewGUI {
         if (isDrawerOpen) {
             toggleNavDrawer()
         }
-        // TODO: Add logic to switch to the recipe view
+        showRecipeView()
     }
 
     @FXML
@@ -250,7 +289,7 @@ class RecipeViewGUI {
         if (isDrawerOpen) {
             toggleNavDrawer()
         }
-        // TODO: Add logic to switch to the ingredient view
+        showIngredientView()
     }
 
     @FXML

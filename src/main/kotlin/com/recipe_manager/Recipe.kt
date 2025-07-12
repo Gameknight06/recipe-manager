@@ -25,7 +25,6 @@ data class Recipe(
         get() = ingredients.values.sumOf { it.ingredient.cost * it.amount }
 
     var timesMade: Int = 0
-
     var isFavorite = false
 
     fun incrementTimesMade() {
