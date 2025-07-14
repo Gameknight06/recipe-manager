@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+
+<?import javafx.scene.layout.HBox?>
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.recipe_manager.RecipeDetailsGUI">
+    <children>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+            <content>
+                <VBox spacing="15.0" styleClass="recipe-details-view">
+                    <padding>
+                        <Insets top="15.0" left="15.0" right="15.0" bottom="40.0"/>
+                    </padding>
+
+                    <BorderPane>
+                        <left>
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <Button fx:id="goBackButton" onAction="#handleGoBackClick"
+                                        styleClass="button-icon, action-button, small-recipe-button, elevated-1,accent, text-bold"
+                                        BorderPane.alignment="CENTER">
+                                    <graphic>
+                                        <FontIcon iconLiteral="mdal-arrow_back"/>
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="incrementTimesMadeButton" onAction="#handleIncrementTimesMadeClick"
+                                        styleClass="button-icon, action-button, small-recipe-button, elevated-1,accent, text-bold"
+                                        BorderPane.alignment="CENTER">
+                                    <graphic>
+                                        <FontIcon iconLiteral="mdal-arrow_drop_up"/>
+                                    </graphic>
+                                </Button>
+                            </HBox>
+                        </left>
+                        <center>
+                            <Label fx:id="recipeName" text="Recipe Name" styleClass="title-1"/>
+                        </center>
+                        <right>
+                            <Button fx:id="editButton" onAction="#handleEditClick" styleClass="button-icon, action-button, small-recipe-button, elevated-1,accent, text-bold" BorderPane.alignment="CENTER">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdal-edit"/>
+                                </graphic>
+                            </Button>
+                        </right>
+                    </BorderPane>
+                    <Separator/>
+                    <Label fx:id="recipeTime" text="Time to Cook" styleClass="title-4"/>
+                    <Separator/>
+                    <Label fx:id="recipeDescription" text="Description" styleClass="title-4" wrapText="true"/>
+                    <Separator/>
+                    <Label fx:id="recipeIngredients" text="Ingredients" styleClass="recipe-ingredients, title-4"/>
+                    <ListView fx:id="ingredientsListView" prefHeight="150.0" styleClass="recipe-ingredients-list"/>
+                    <Separator/>
+                    <Label fx:id="recipeInstructions" text="Instructions" styleClass="recipe-instructions, title-4" wrapText="true"/>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</StackPane>

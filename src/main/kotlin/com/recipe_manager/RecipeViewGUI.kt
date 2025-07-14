@@ -33,8 +33,6 @@ class RecipeViewGUI {
     @FXML private lateinit var recipeViewButton: Button
     @FXML private lateinit var ingredientViewButton: Button
     @FXML private lateinit var scrollPane: ScrollPane
-
-
     @FXML private lateinit var navDrawer: VBox
     @FXML private lateinit var drawerOverlay: Region
     @FXML private lateinit var mainContentPane: BorderPane
@@ -72,6 +70,10 @@ class RecipeViewGUI {
         loadAndDisplayRecipes()
     }
 
+    private fun showFavoritesView() {
+        loadAndDisplayRecipes {recipe -> recipe.isFavorite}
+    }
+
     private fun showIngredientView() {
         try {
             val ingredientViewLoader = FXMLLoader(javaClass.getResource("IngredientView.fxml"))
@@ -81,6 +83,77 @@ class RecipeViewGUI {
         } catch (e: Exception) {
             e.printStackTrace()
             println("Error loading IngredientView.fxml")
+        }
+    }
+
+    private fun showRecipeDetails(recipe: Recipe) {
+        try {
+            val recipeDetailsLoader = FXMLLoader(javaClass.getResource("RecipeDetails.fxml"))
+            val recipeDetailsRoot = recipeDetailsLoader.load<StackPane>()
+            val recipeDetailsController = recipeDetailsLoader.getController<RecipeDetailsGUI>()
+
+            recipeDetailsController.onGoBack = { showRecipeView() }
+            recipeDetailsController.onEdit = { recipeToEdit -> showEditRecipe(recipeToEdit) }
+            recipeDetailsController.setRecipeDetails(recipe)
+            scrollPane.content = recipeDetailsRoot
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("Error loading RecipeDetails.fxml")
+        }
+    }
+
+    private fun showEditRecipe(recipe: Recipe) {
+        try {
+            val originalRecipeName = recipe.name
+
+            val fxmlLoader = FXMLLoader(javaClass.getResource("EditRecipe.fxml"))
+            val dialogPane = fxmlLoader.load<DialogPane>()
+            val editRecipeController = fxmlLoader.getController<EditRecipeGUI>()
+
+            editRecipeController.setRecipeDetails(recipe)
+
+            val dialog = Dialog<Recipe>()
+            dialog.dialogPane = dialogPane
+            dialog.title = "Edit Recipe"
+            dialog.initStyle(StageStyle.UNDECORATED)
+
+            val stage = rootPane.scene.window as Stage
+            dialog.initOwner(stage)
+            dialog.width = stage.widthProperty().value * 0.85
+            dialog.height = stage.heightProperty().value * 0.65
+            dialog.x = stage.x + (stage.width - dialog.width) / 2
+            dialog.y = stage.y + (stage.height - dialog.height) / 2
+
+            val saveButton = dialog.dialogPane.lookupButton(editRecipeController.saveButtonType) as Button
+
+            saveButton.addEventFilter(ActionEvent.ACTION) { event ->
+                val newRecipe = editRecipeController.updateRecipeFromFields()
+                if (newRecipe == null) {
+                    event.consume()
+                }
+            }
+
+            dialog.setResultConverter { buttonType ->
+                if (buttonType == editRecipeController.saveButtonType) {
+                    editRecipeController.updateRecipeFromFields()
+                    recipe
+                } else {
+                    null
+                }
+            }
+
+            dialog.showAndWait().ifPresent { updatedRecipe ->
+                val allRecipes = FileOperations.loadRecipes()
+                allRecipes.remove(originalRecipeName)
+                allRecipes[updatedRecipe.name] = updatedRecipe
+                FileOperations.saveRecipes(allRecipes)
+
+                println("Recipe updated: ${updatedRecipe.name}")
+                loadAndDisplayRecipes()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -104,10 +177,12 @@ class RecipeViewGUI {
         transition.play()
     }
 
-    private fun loadAndDisplayRecipes() {
+    private fun loadAndDisplayRecipes(filter: (Recipe) -> Boolean = { true }) {
         scrollPane.content = recipeContainer
 
-        val recipes = FileOperations.loadRecipes()
+        recipeContainer.children.clear()
+
+        val recipes = FileOperations.loadRecipes().values.filter(filter)
 
         if (recipes.isEmpty()) {
             val placeholder = Label("No recipes found. Add one using the '+' button!")
@@ -115,28 +190,36 @@ class RecipeViewGUI {
         } else {
             val placeholderImage = Image("com/recipe_manager/images/post-placeholder.jpg")
 
-            for (recipe in recipes.values) {
-                val imageView = ImageView(placeholderImage)
-                imageView.fitHeight = 210.0
+            for (recipe in recipes) {
+                var imageToDisplay: Image
+
+                if (!recipe.imagePath.isNullOrEmpty()) {
+                    try {
+                        imageToDisplay = Image(recipe.imagePath)
+                    } catch (e: Exception) {
+                        println("Error loading image for recipe: ${recipe.name} from path: ${recipe.imagePath}")
+                        imageToDisplay = placeholderImage
+                    }
+                } else {
+                    imageToDisplay = placeholderImage
+                }
+
+                val imageView = ImageView(imageToDisplay)
+                imageToDisplay.errorProperty().addListener { _, _, _ ->
+                    println("Error loading image for recipe: ${recipe.name} from path: ${recipe.imagePath}")
+                    imageView.image = placeholderImage
+                }
+                imageView.fitHeight = rootPane.prefWidth * 0.38
                 imageView.fitWidth = Double.MAX_VALUE
                 imageView.isPreserveRatio = true
 
                 val imageContainer = StackPane(imageView).apply {
-                    prefHeight = 243.0
+                    prefHeight = rootPane.prefWidth * 0.40
                     styleClass.add("recipe-image-container")
 
                     onMouseClicked = javafx.event.EventHandler {
-                        println("Clicked on recipe: ${recipe.name}")
-                        // TODO: Navigate to the recipe details view
+                        showRecipeDetails(recipe)
                     }
-                }
-
-                val imageButton = Button()
-                imageButton.graphic = imageView
-                imageButton.styleClass.add("image-button")
-                imageButton.onAction = javafx.event.EventHandler {
-                    println("Clicked on recipe: ${recipe.name}")
-                    // TODO: Navigate to the recipe details view
                 }
 
                 val titleLabel = Label(recipe.name)
@@ -158,6 +241,7 @@ class RecipeViewGUI {
                 editButton.graphic = FontIcon(Feather.EDIT)
                 editButton.setOnAction {
                     println("Edit button clicked for recipe: ${recipe.name}")
+                    showEditRecipe(recipe)
                 }
                 editButton.styleClass.addAll("accent", "text-bold", "button-icon", "small-recipe-button")
 
@@ -166,7 +250,7 @@ class RecipeViewGUI {
                 deleteButton.setOnAction {
                     println("Delete button clicked for recipe: ${recipe.name}")
                     FileOperations.deleteRecipe(recipe)
-                    loadAndDisplayRecipes()
+                    loadAndDisplayRecipes(filter)
                 }
                 deleteButton.styleClass.addAll("danger", "text-bold", "button-icon", "delete-recipe-button")
 
@@ -176,7 +260,10 @@ class RecipeViewGUI {
                     println("${recipe.name} is now a favorite!")
                     recipe.isFavorite = !recipe.isFavorite
                     favoriteButton.graphic = FontIcon(if (recipe.isFavorite) Material2MZ.STAR else Material2MZ.STAR_OUTLINE)
-                    FileOperations.saveRecipes(recipes)
+                    val allRecipes = FileOperations.loadRecipes()
+                    allRecipes[recipe.name] = recipe
+                    FileOperations.saveRecipes(allRecipes)
+                    loadAndDisplayRecipes(filter)
                 }
                 favoriteButton.styleClass.addAll("accent", "text-bold", "button-icon", "small-recipe-button")
 
@@ -230,16 +317,9 @@ class RecipeViewGUI {
 
             val saveButton = dialog.dialogPane.lookupButton(addRecipeController.saveButtonType) as Button
 
-            saveButton.addEventFilter(ActionEvent.ACTION) { event ->
-                val newRecipe = addRecipeController.getNewRecipe()
-                if (newRecipe == null) {
-                    event.consume()
-                }
-            }
-
             dialog.setResultConverter { buttonType ->
                 if (buttonType == addRecipeController.saveButtonType) {
-                    addRecipeController.getNewRecipe()
+                    addRecipeController.getRecipeData()
                 } else {
                     null
                 }
@@ -259,13 +339,52 @@ class RecipeViewGUI {
 
     @FXML
     private fun handleAddIngredientClick() {
-        println("Add Ingredient button clicked!")
+        try {
+            val fxmlLoader = FXMLLoader(javaClass.getResource("AddIngredient.fxml"))
+            val dialogPane = fxmlLoader.load<DialogPane>()
+            val addIngredientController = fxmlLoader.getController<AddIngredientGUI>()
 
-        val alert = Alert(Alert.AlertType.INFORMATION)
-        alert.title = "Coming Soon!"
-        alert.headerText = null
-        alert.contentText = "This feature is coming soon!"
-        alert.showAndWait()
+            val dialog = Dialog<Ingredient>()
+            dialog.dialogPane = dialogPane
+            dialog.title = "Add New Ingredient"
+            dialog.initStyle(StageStyle.UNDECORATED)
+
+            val stage = rootPane.scene.window as Stage
+            dialog.initOwner(stage)
+
+            dialog.width = stage.widthProperty().value * 0.85
+            dialog.height = stage.heightProperty().value * 0.65
+
+            dialog.x = stage.x + (stage.width - dialog.width) / 2
+            dialog.y = stage.y + (stage.height - dialog.height) / 2
+
+            val saveButton = dialog.dialogPane.lookupButton(addIngredientController.saveButtonType) as Button
+
+            saveButton.addEventFilter(ActionEvent.ACTION) { event ->
+                val newRecipe = addIngredientController.getNewIngredient()
+                if (newRecipe == null) {
+                    event.consume()
+                }
+            }
+
+            dialog.setResultConverter { buttonType ->
+                if (buttonType == addIngredientController.saveButtonType) {
+                    addIngredientController.getNewIngredient()
+                } else {
+                    null
+                }
+            }
+
+            val result = dialog.showAndWait()
+
+            result.ifPresent { newIngredient ->
+                FileOperations.addIngredient(newIngredient)
+                println("Ingredient added: ${newIngredient.name}")
+                loadAndDisplayRecipes()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 
@@ -298,6 +417,6 @@ class RecipeViewGUI {
         if (isDrawerOpen) {
             toggleNavDrawer()
         }
-        // TODO: Add logic to switch to the favorites view
+        showFavoritesView()
     }
 }

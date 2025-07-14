@@ -6,7 +6,7 @@ import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
 
-class IngredientView {
+class IngredientViewGUI {
 
     @FXML private lateinit var ingredientsTable: TableView<Ingredient>
     @FXML private lateinit var nameColumn: TableColumn<Ingredient, String>

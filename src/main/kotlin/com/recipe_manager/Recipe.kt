@@ -13,6 +13,7 @@ data class Recipe(
     var description: String,
     var ingredients: MutableMap<String, RecipeIngredient> = mutableMapOf(),
     var instructions: String,
+    var imagePath: String? = null,
 )
 {
     val totalCarbs: Double
@@ -35,14 +36,14 @@ data class Recipe(
 
     }
 
-    fun returnIngredients(): MutableList<String> {
-        var allIngredients = mutableListOf<String>()
-        for(name in ingredients.keys) {
-            allIngredients.add(name)
-        }
-
-        return allIngredients
+    fun returnIngredients(): List<String> {
+        return ingredients.keys.toList()
     }
 
+    fun returnIngredientDetails(): List<DisplayIngredients> {
+        return ingredients.values.map { recipeIngredient ->
+            DisplayIngredients(recipeIngredient.ingredient.name, recipeIngredient.amount, recipeIngredient.unit)
+        }
+    }
 
 }
