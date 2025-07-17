@@ -57,6 +57,10 @@
                     <Separator/>
                     <Label fx:id="recipeCost" text="Estimated Cost:" styleClass="title-4" wrapText="true"/>
                     <Separator/>
+                    <Label fx:id="recipeCarbs" text="Total Carbs:" styleClass="title-4" wrapText="true"/>
+                    <Separator/>
+                    <Label fx:id="recipeSugar" text="Total Sugar:" styleClass="title-4" wrapText="true"/>
+                    <Separator/>
                     <Label fx:id="recipeIngredients" text="Ingredients:" styleClass="recipe-ingredients, title-4"/>
                     <ListView fx:id="ingredientsListView" prefHeight="150.0" styleClass="recipe-ingredients-list"/>
                     <Separator/>

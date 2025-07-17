@@ -52,6 +52,7 @@ class AddIngredientGUI {
         return Ingredient(name, location, unit, cost, carbs, sugar, defaultAmount)
     }
 
+
     private fun showError(message: String) {
         error.message = message
         error.graphic = FontIcon(Material2OutlinedAL.ERROR_OUTLINE)

@@ -3,16 +3,14 @@
 <?import atlantafx.base.controls.Notification?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
-
-
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <DialogPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.recipe_manager.AddIngredientGUI"
+            fx:controller="com.recipe_manager.EditIngredientGUI"
             prefWidth="600" prefHeight="750" styleClass="add-recipe-dialog">
 
     <header>
-        <Label styleClass="title-2" text="Add a new Ingredient" alignment="TOP_CENTER" />
+        <Label styleClass="title-2" text="Edit Ingredient" alignment="TOP_CENTER" />
     </header>
 
     <content>

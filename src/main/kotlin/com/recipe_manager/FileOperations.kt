@@ -55,6 +55,12 @@ object FileOperations {
         saveIngredients(ingredients)
     }
 
+    fun deleteIngredient(ingredient: Ingredient) {
+        val ingredients = loadIngredients()
+        ingredients.remove(ingredient.name)
+        saveIngredients(ingredients)
+    }
+
     fun addRecipe(newRecipe: Recipe) {
         val recipes = loadRecipes()
         recipes[newRecipe.name] = newRecipe

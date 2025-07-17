@@ -10,20 +10,19 @@ import javafx.stage.Stage
 
 /**
 Outline for the program:
-
  Each recipe is a data class and has its own ingredients and details: name, time to cook, description of product, ingredients and their amounts, instructions, total carbs or nutritional information, and estimated cost.
- Each ingredient should be a data class and have details: name, where they are stored, the cost of each ingredient by its entire weight or volume, and the carbs or other nutritional information.
+ There is a GUI that allows the user to see all the recipes with an image, and a button to add a new recipe or ingredient.
+ The adding page has an area to fill out the recipe details plus an area to add ingredients with its own small dialog window.
 
- There should be a GUI that allows the user to see all the recipes with perhaps an image, and a button to add a new one.
- The adding page should have an area to fill out the recipe details plus an area to add ingredients with a plus button.
- There should also be an option to add new ingredients to be chosen when adding a recipe, and they should then have their details stored so they can be used again.
- There should be a search/filter functionality for recipes (e.g., by name, ingredient, cooking time).
- Users should be able to edit and delete existing recipes and ingredients.
+ Each ingredient is a data class and has details: name, where they are stored, the cost of each ingredient by its entire weight or volume, and the carbs or other nutritional information.
+ There is a GUI that allows the user to see all the ingredients in a table view with the ability to edit or delete any of them.
+ The adding page for ingredients has an area to fill out the ingredient details.
 
- The application should persist data (e.g., using a local database or file storage), so it's available across sessions.
- There should be a feature to input how much of each ingredient you have. Everytime you click a button to increment how many times you've made a specific recipe,
- it would take out the amount of each ingredient it uses to let you know how much of each ingredient you have.
+ Users are able to edit and delete existing recipes and ingredients.
 
+ There is a details page for each recipe that shows all its details and has the option to go back to the recipes page, edit the recipe, or increment how many times it has been made.
+
+ The application persists data using two local files on the computer to store recipes and ingredients, so it's available across sessions.
  */
 
 class Main : Application() {

@@ -92,7 +92,7 @@ class EditRecipeGUI {
     private fun handleRemoveIngredient() {
         val selectedIngredient = ingredientsTableView.selectionModel.selectedItem ?: return
 
-        currentRecipe .ingredients.remove(selectedIngredient.ingredient.name)
+        currentRecipe.ingredients.remove(selectedIngredient.ingredient.name)
         ingredientsTableView.items.remove(selectedIngredient)
     }
 

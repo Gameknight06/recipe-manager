@@ -17,10 +17,28 @@ data class Recipe(
 )
 {
     val totalCarbs: Double
-        get() = ingredients.values.sumOf { it.ingredient.carbs * it.amount }
+        get() = ingredients.values.sumOf { recipeIngredient ->
+            val ingredient = recipeIngredient.ingredient
+            if (ingredient.defaultAmount == 0.0) return@sumOf 0.0
+
+            val convertedAmount = UnitConverter.convert(recipeIngredient.unit, ingredient.unitType, recipeIngredient.amount)
+
+            convertedAmount?.let {
+                (it / ingredient.defaultAmount) * ingredient.carbs
+            } ?: 0.0
+        }
 
     val totalSugar: Double
-        get() = ingredients.values.sumOf { it.ingredient.sugar * it.amount }
+        get() = ingredients.values.sumOf { recipeIngredient ->
+            val ingredient = recipeIngredient.ingredient
+            if (ingredient.defaultAmount == 0.0) return@sumOf 0.0
+
+            val convertedAmount = UnitConverter.convert(recipeIngredient.unit, ingredient.unitType, recipeIngredient.amount)
+
+            convertedAmount?.let {
+                (it / ingredient.defaultAmount) * ingredient.sugar
+            } ?: 0.0
+        }
 
     val estimatedCost: Double
         get() = ingredients.values.sumOf { recipeIngredient ->
