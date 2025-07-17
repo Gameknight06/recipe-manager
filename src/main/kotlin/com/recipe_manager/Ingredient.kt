@@ -9,9 +9,3 @@ data class Ingredient(
     var sugar: Double,
     var defaultAmount: Double,
 )
-{
-
-    class Ingredient(name: String, location: String, unitType: String, cost: Double, carbs: Double, sugar: Double, defaultAmount: Double)
-
-
-}

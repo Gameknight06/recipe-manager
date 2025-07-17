@@ -1,17 +1,71 @@
 package com.recipe_manager
 
+data class RecipeIngredient(
+    var ingredient: Ingredient,
+    var amount: Double,
+    var unit: String,
+)
+
+
 data class Recipe(
     var name: String,
     var timeToCook: String,
     var description: String,
-    var ingredients: MutableMap<Double, Ingredient> = mutableMapOf(),
+    var ingredients: MutableMap<String, RecipeIngredient> = mutableMapOf(),
     var instructions: String,
-    var totalCarbs: Double,
-    var estimatedCost: Double,
+    var imagePath: String? = null,
 )
 {
+    val totalCarbs: Double
+        get() = ingredients.values.sumOf { recipeIngredient ->
+            val ingredient = recipeIngredient.ingredient
+            if (ingredient.defaultAmount == 0.0) return@sumOf 0.0
 
-    class Recipe(name: String, timeToCook: String, description: String, ingredients: MutableMap<Double, Ingredient>, instructions: String, totalCarbs: Double, estimatedCost: Double)
+            val convertedAmount = UnitConverter.convert(recipeIngredient.unit, ingredient.unitType, recipeIngredient.amount)
 
+            convertedAmount?.let {
+                (it / ingredient.defaultAmount) * ingredient.carbs
+            } ?: 0.0
+        }
 
+    val totalSugar: Double
+        get() = ingredients.values.sumOf { recipeIngredient ->
+            val ingredient = recipeIngredient.ingredient
+            if (ingredient.defaultAmount == 0.0) return@sumOf 0.0
+
+            val convertedAmount = UnitConverter.convert(recipeIngredient.unit, ingredient.unitType, recipeIngredient.amount)
+
+            convertedAmount?.let {
+                (it / ingredient.defaultAmount) * ingredient.sugar
+            } ?: 0.0
+        }
+
+    val estimatedCost: Double
+        get() = ingredients.values.sumOf { recipeIngredient ->
+            val ingredient = recipeIngredient.ingredient
+            if (ingredient.defaultAmount == 0.0) return@sumOf 0.0
+
+            val convertedAmount = UnitConverter.convert(recipeIngredient.unit, ingredient.unitType, recipeIngredient.amount)
+
+            convertedAmount?.let {
+                (it / ingredient.defaultAmount) * ingredient.cost
+            } ?: 0.0
+        }
+
+    var timesMade: Int = 0
+    var isFavorite = false
+
+    fun incrementTimesMade() {
+        timesMade++
+    }
+
+    fun returnIngredients(): List<String> {
+        return ingredients.keys.toList()
+    }
+
+    fun returnIngredientDetails(): List<DisplayIngredients> {
+        return ingredients.values.map { recipeIngredient ->
+            DisplayIngredients(recipeIngredient.ingredient.name, recipeIngredient.amount, recipeIngredient.unit)
+        }
+    }
 }

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import atlantafx.base.controls.Notification?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<DialogPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.recipe_manager.EditRecipeGUI"
+            prefWidth="600" prefHeight="750" styleClass="add-recipe-dialog">
+
+    <header>
+        <Label styleClass="title-2" text="Edit Recipe" alignment="TOP_CENTER" />
+    </header>
+
+    <content>
+        <StackPane>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="NEVER" styleClass="add-recipe-scroll-pane">
+                <VBox spacing="15.0" >
+                    <padding>
+                        <Insets top="10" left="10" right="10" bottom="10" />
+                    </padding>
+
+                    <Label text="Recipe Image(optional):" styleClass="text-bold"/>
+                    <HBox spacing="10.0" alignment="CENTER_LEFT">
+                        <Button fx:id="selectImageButton" text="Choose Image..." onAction="#handleSelectImageClick"/>
+                        <ImageView fx:id="imagePreview" fitHeight="100.0" fitWidth="100.0" preserveRatio="true" styleClass="image-preview"/>
+                    </HBox>
+
+                    <Label text="Name:" styleClass="text-bold"/>
+                    <TextField fx:id="nameField" promptText="e.g., Chicken Alfredo"/>
+
+                    <Label text="Time to Cook:" styleClass="text-bold"/>
+                    <TextField fx:id="timeToCookField" promptText="e.g., 45 minutes"/>
+
+                    <Label text="Description:" styleClass="text-bold"/>
+                    <TextArea fx:id="descriptionArea" promptText=" A short description of the recipe" wrapText="true"/>
+
+                    <Label text="Instructions:" styleClass="text-bold"/>
+                    <TextArea fx:id="instructionArea" promptText=" Step-by-step instructions" wrapText="true"/>
+
+                    <Separator/>
+
+                    <Label text="Ingredients" styleClass="title-4"/>
+                    <TableView fx:id="ingredientsTableView" prefHeight="200.0" editable="true" styleClass="ingredient-tableview, bordered, striped">
+                        <columns>
+                            <TableColumn fx:id="nameColumn" prefWidth="165.0" text="Name"/>
+                            <TableColumn fx:id="amountColumn" prefWidth="165.0" text="Amount"/>
+                            <TableColumn fx:id="unitColumn" prefWidth="165.0" text="Unit"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox spacing="10.0">
+                        <Button text="Add Ingredient" onAction="#handleAddIngredient"/>
+                        <Button text="Remove Selected Ingredient" onAction="#handleRemoveIngredient"/>
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+
+            <Notification fx:id="error" visible="false" styleClass="danger" StackPane.alignment="TOP_RIGHT" maxHeight="40.0" maxWidth="300.0">
+                <StackPane.margin>
+                    <Insets top="10" right="10" />
+                </StackPane.margin>
+            </Notification>
+
+        </StackPane>
+    </content>
+
+
+    <buttonTypes>
+        <ButtonType fx:id="saveButtonType" text="Save" buttonData="OK_DONE" />
+        <ButtonType text="Cancel" buttonData="CANCEL_CLOSE"/>
+    </buttonTypes>
+</DialogPane>
