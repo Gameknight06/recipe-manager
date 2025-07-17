@@ -1,24 +1,21 @@
 package com.recipe_manager
 
 import atlantafx.base.controls.Notification
+import atlantafx.base.util.DoubleStringConverter
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.ButtonType
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Label
-import javafx.scene.control.ListCell
-import javafx.scene.control.ListView
-import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
+import javafx.fxml.FXMLLoader
+import javafx.scene.control.*
+import javafx.scene.control.cell.ComboBoxTableCell
+import javafx.scene.control.cell.PropertyValueFactory
+import javafx.scene.control.cell.TextFieldTableCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
 import javafx.stage.FileChooser
-import org.kordamp.ikonli.feather.Feather
+import javafx.stage.StageStyle
+import javafx.util.Callback
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2OutlinedAL
 import java.io.File
@@ -29,20 +26,18 @@ class EditRecipeGUI {
     @FXML private lateinit var timeToCookField: TextField
     @FXML private lateinit var descriptionArea: TextArea
     @FXML private lateinit var instructionArea: TextArea
-    @FXML private lateinit var ingredientsListView: ListView<DisplayIngredients>
-    @FXML private lateinit var ingredientComboBox: ComboBox<String>
-    @FXML private lateinit var amountField: TextField
-    @FXML private lateinit var unitComboBox: ComboBox<String>
     @FXML lateinit var saveButtonType: ButtonType
     @FXML lateinit var error: Notification
     @FXML private lateinit var selectImageButton: Button
     @FXML private lateinit var imagePreview: ImageView
+    @FXML private lateinit var ingredientsTableView: TableView<RecipeIngredient>
+    @FXML private lateinit var nameColumn: TableColumn<RecipeIngredient, String>
+    @FXML private lateinit var amountColumn: TableColumn<RecipeIngredient, Double>
+    @FXML private lateinit var unitColumn: TableColumn<RecipeIngredient, String>
 
     private var selectedImagePath: String? = null
     private lateinit var currentRecipe: Recipe
-    private val allIngredients = FileOperations.loadIngredients()
     private val recipeIngredients = mutableMapOf<String, RecipeIngredient>()
-    private val addIngredientsObservableList = FXCollections.observableArrayList<DisplayIngredients>()
 
     fun setRecipeDetails(recipe: Recipe) {
         currentRecipe = recipe
@@ -61,73 +56,89 @@ class EditRecipeGUI {
             }
         }
 
-        recipeIngredients.clear()
-        recipeIngredients.putAll(recipe.ingredients)
-        addIngredientsObservableList.setAll(recipe.returnIngredientDetails())
+        ingredientsTableView.items = FXCollections.observableArrayList(currentRecipe.ingredients.values)
     }
 
     @FXML
     private fun initialize() {
         error.setOnClose { error.isVisible = false }
 
-        ingredientComboBox.items = FXCollections.observableArrayList(allIngredients.keys.sorted())
-        unitComboBox.items = FXCollections.observableArrayList(listOfUnits)
-        amountField.textFormatter = createDecimalTextFormatter()
-        ingredientsListView.items = addIngredientsObservableList
+        setupIngredientsTable()
+    }
 
+    private fun setupIngredientsTable() {
+        ingredientsTableView.isEditable = true
 
-        ingredientsListView.setCellFactory {
-            object : ListCell<DisplayIngredients>() {
-                private val hbox = HBox(10.0)
-                private val label = Label()
-                private val spacer = Region()
-                private val deleteButton = Button(null, FontIcon(Feather.TRASH))
+        nameColumn.cellValueFactory = Callback { cellData ->
+            SimpleStringProperty(cellData.value.ingredient.name)
+        }
 
-                init {
-                    deleteButton.styleClass.addAll("danger", "text-bold", "button-icon", "delete-recipe-button")
-                    HBox.setHgrow(spacer, Priority.ALWAYS)
-                    hbox.children.addAll(label, spacer, deleteButton)
-                    hbox.alignment = Pos.CENTER_LEFT
-                }
+        amountColumn.cellValueFactory = PropertyValueFactory("amount")
+        amountColumn.cellFactory = TextFieldTableCell.forTableColumn(DoubleStringConverter())
+        amountColumn.setOnEditCommit { event ->
+            val recipeIngredient = event.rowValue
+            recipeIngredient.amount = event.newValue
+        }
 
-                override fun updateItem(p0: DisplayIngredients?, empty: Boolean) {
-                    super.updateItem(p0, empty)
-                    if (empty || item == null) {
-                        graphic = null
-                    } else {
-                        label.text = item.toString()
-                        deleteButton.setOnAction {
-                            recipeIngredients.remove(item.name)
-                            listView.items.remove(item)
-                        }
-                        graphic = hbox
-                    }
-                }
-            }
+        unitColumn.cellValueFactory = PropertyValueFactory("unit")
+        unitColumn.cellFactory = ComboBoxTableCell.forTableColumn(FXCollections.observableArrayList(UnitConverter.allUnits))
+        unitColumn.setOnEditCommit { event ->
+            val recipeIngredient = event.rowValue
+            recipeIngredient.unit = event.newValue
         }
     }
 
     @FXML
+    private fun handleRemoveIngredient() {
+        val selectedIngredient = ingredientsTableView.selectionModel.selectedItem ?: return
+
+        currentRecipe .ingredients.remove(selectedIngredient.ingredient.name)
+        ingredientsTableView.items.remove(selectedIngredient)
+    }
+
+    @FXML
     private fun handleAddIngredient() {
-        val selectedIngredientName = ingredientComboBox.selectionModel.selectedItem ?: return
-        val amount = amountField.text.toDoubleOrNull()
-        val unit = unitComboBox.selectionModel.selectedItem ?: return
-        val ingredient = allIngredients[selectedIngredientName]
+        try {
+            val fxmlLoader = FXMLLoader(javaClass.getResource("AddIngredientToRecipe.fxml"))
+            val dialogPane: DialogPane = fxmlLoader.load()
+            val controller = fxmlLoader.getController<AddIngredientToRecipeGUI>()
+
+            val dialog = Dialog<RecipeIngredient>()
+            dialog.dialogPane = dialogPane
+            dialog.title = "Add Ingredient"
+            dialog.initOwner(ingredientsTableView.scene.window)
+            dialog.initStyle(StageStyle.UNDECORATED)
 
 
-        if (amount == null || ingredient == null || unit.isBlank()) {
-            showError("Missing or invalid input for ingredient!")
-            return
+            val addButton = dialog.dialogPane.lookupButton(controller.addButtonType)
+            addButton.addEventFilter(ActionEvent.ACTION) { e ->
+                if (controller.validateAndGetResult() == null) {
+                    e.consume()
+                }
+            }
+
+            dialog.setResultConverter { buttonType ->
+                if (buttonType == controller.addButtonType) {
+                    controller.validateAndGetResult()
+                } else null
+            }
+
+            dialog.showAndWait().ifPresent { newRecipeIngredient ->
+                if (currentRecipe.ingredients.containsKey(newRecipeIngredient.ingredient.name)) {
+                    Alert(
+                        Alert.AlertType.WARNING,
+                        "'${newRecipeIngredient.ingredient.name}' is already in this recipe. You can edit its amount or unit directly in the table."
+                    ).showAndWait()
+                } else {
+                    currentRecipe.ingredients[newRecipeIngredient.ingredient.name] = newRecipeIngredient
+                    ingredientsTableView.items.add(newRecipeIngredient)
+                }
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Alert(Alert.AlertType.ERROR, "Could not open the Add Ingredient dialog: ${e.message}").showAndWait()
         }
-
-        val recipeIngredient = RecipeIngredient(ingredient, amount, unit)
-        recipeIngredients[selectedIngredientName] = recipeIngredient
-        addIngredientsObservableList.add(DisplayIngredients(selectedIngredientName, amount, unit))
-
-        ingredientComboBox.selectionModel.clearSelection()
-        amountField.clear()
-        unitComboBox.selectionModel.clearSelection()
-        error.isVisible = false
     }
 
     @FXML

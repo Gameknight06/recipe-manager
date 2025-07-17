@@ -43,10 +43,6 @@
 
                     <Label text="Default Amount:" styleClass="text-bold"/>
                     <TextField fx:id="defaultAmountField" promptText="e.g., 10.0"/>
-
-                    <Label text="Current Amount:" styleClass="text-bold"/>
-                    <TextField fx:id="currentAmountField" promptText="e.g., 30.0"/>
-
                 </VBox>
             </ScrollPane>
 

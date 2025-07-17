@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<DialogPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.recipe_manager.AddIngredientToRecipeGUI"
+            prefWidth="400">
+    <header>
+        <Label styleClass="title-3" text="Add Ingredient to Recipe" alignment="CENTER"/>
+    </header>
+    <content>
+        <GridPane hgap="10" vgap="15">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Label text="Ingredient:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="ingredientComboBox" prefWidth="250.0" promptText="Select an ingredient" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Amount:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="amountField" promptText="e.g., 2.5" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Unit:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="unitComboBox" prefWidth="250.0" promptText="Select a unit" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label fx:id="errorLabel" textFill="red" wrapText="true" GridPane.rowIndex="3" GridPane.columnIndex="1" minHeight="30"/>
+
+        </GridPane>
+    </content>
+    <buttonTypes>
+        <ButtonType fx:id="addButtonType" text="Add" buttonData="OK_DONE"/>
+        <ButtonType text="Cancel" buttonData="CANCEL_CLOSE"/>
+    </buttonTypes>
+</DialogPane>

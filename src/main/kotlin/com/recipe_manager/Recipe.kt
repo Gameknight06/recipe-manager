@@ -23,17 +23,22 @@ data class Recipe(
         get() = ingredients.values.sumOf { it.ingredient.sugar * it.amount }
 
     val estimatedCost: Double
-        get() = ingredients.values.sumOf { it.ingredient.cost * it.amount }
+        get() = ingredients.values.sumOf { recipeIngredient ->
+            val ingredient = recipeIngredient.ingredient
+            if (ingredient.defaultAmount == 0.0) return@sumOf 0.0
+
+            val convertedAmount = UnitConverter.convert(recipeIngredient.unit, ingredient.unitType, recipeIngredient.amount)
+
+            convertedAmount?.let {
+                (it / ingredient.defaultAmount) * ingredient.cost
+            } ?: 0.0
+        }
 
     var timesMade: Int = 0
     var isFavorite = false
 
     fun incrementTimesMade() {
         timesMade++
-        for(recipeIngredient in ingredients.values) {
-            recipeIngredient.ingredient.currentAmount -= recipeIngredient.amount
-        }
-
     }
 
     fun returnIngredients(): List<String> {
@@ -45,5 +50,4 @@ data class Recipe(
             DisplayIngredients(recipeIngredient.ingredient.name, recipeIngredient.amount, recipeIngredient.unit)
         }
     }
-
 }

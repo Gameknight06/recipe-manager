@@ -23,7 +23,7 @@
             <TableColumn fx:id="locationColumn" prefWidth="120.0" text="Location"/>
             <TableColumn fx:id="costColumn" prefWidth="90.0" text="Cost"/>
             <TableColumn fx:id="unitColumn" prefWidth="118.0" text="Unit Type"/>
-            <TableColumn fx:id="currentAmountColumn" prefWidth="130.0" text="Current Amount"/>
+            <TableColumn fx:id="carbsColumn" prefWidth="130.0" text="Carbs"/>
         </columns>
     </TableView>
 </VBox>

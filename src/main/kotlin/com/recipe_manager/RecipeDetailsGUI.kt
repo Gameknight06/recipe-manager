@@ -17,6 +17,7 @@ class RecipeDetailsGUI {
     @FXML private lateinit var recipeDescription: Label
     @FXML private lateinit var recipeIngredients: Label
     @FXML private lateinit var recipeInstructions: Label
+    @FXML private lateinit var recipeCost: Label
     @FXML private lateinit var ingredientsListView: ListView<String>
     @FXML private lateinit var goBackButton: Button
     @FXML private lateinit var editButton: Button
@@ -32,6 +33,7 @@ class RecipeDetailsGUI {
         recipeName.text = recipe.name
         recipeTime.text = "Time to Cook: \n\n${recipe.timeToCook}"
         recipeDescription.text = "Description: \n\n${recipe.description}"
+        recipeCost.text = "Estimated Cost: \n\n$${recipe.estimatedCost.toBigDecimal().setScale(2, java.math.RoundingMode.HALF_UP)}"
         recipeIngredients.text = "Ingredients:"
         recipeInstructions.text = "Instructions: \n\n${recipe.instructions}"
 

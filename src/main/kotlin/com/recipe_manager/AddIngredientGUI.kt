@@ -18,7 +18,6 @@ class AddIngredientGUI {
     @FXML private lateinit var carbsField: TextField
     @FXML private lateinit var sugarField: TextField
     @FXML private lateinit var defaultAmountField: TextField
-    @FXML private lateinit var currentAmountField: TextField
     @FXML lateinit var saveButtonType: ButtonType
     @FXML lateinit var error: Notification
 
@@ -31,7 +30,6 @@ class AddIngredientGUI {
         carbsField.textFormatter = createDecimalTextFormatter()
         sugarField.textFormatter = createDecimalTextFormatter()
         defaultAmountField.textFormatter = createDecimalTextFormatter()
-        currentAmountField.textFormatter = createDecimalTextFormatter()
     }
 
 
@@ -43,18 +41,15 @@ class AddIngredientGUI {
         val carbs = carbsField.text.toDoubleOrNull()
         val sugar = sugarField.text.toDoubleOrNull()
         val defaultAmount = defaultAmountField.text.toDoubleOrNull()
-        val currentAmount = currentAmountField.text.toDoubleOrNull()
 
 
-        if (name.isBlank() || location.isBlank() || unit.isBlank() || cost == null || carbs == null || sugar == null || defaultAmount == null || currentAmount == null) {
+        if (name.isBlank() || location.isBlank() || unit.isBlank() || cost == null || carbs == null || sugar == null || defaultAmount == null) {
             showError("Please fill out all fields!")
             return null
         }
 
         error.isVisible = false
-        var ingredient = Ingredient(name, location, unit, cost, carbs, sugar, defaultAmount)
-        ingredient.currentAmount = currentAmount
-        return ingredient
+        return Ingredient(name, location, unit, cost, carbs, sugar, defaultAmount)
     }
 
     private fun showError(message: String) {

@@ -44,26 +44,17 @@
                     <Separator/>
 
                     <Label text="Ingredients" styleClass="title-4"/>
-                    <ListView fx:id="ingredientsListView" prefHeight="150.0" style="-fx-background-color: -color-bg-default"/>
+                    <TableView fx:id="ingredientsTableView" prefHeight="200.0" editable="true" styleClass="ingredient-tableview, bordered, striped">
+                        <columns>
+                            <TableColumn fx:id="nameColumn" prefWidth="165.0" text="Name"/>
+                            <TableColumn fx:id="amountColumn" prefWidth="165.0" text="Amount"/>
+                            <TableColumn fx:id="unitColumn" prefWidth="165.0" text="Unit"/>
+                        </columns>
+                    </TableView>
 
-                    <HBox spacing="10.0" alignment="BOTTOM_LEFT">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Ingredients"/>
-                            <ComboBox fx:id="ingredientComboBox" promptText="Select Ingredient" maxWidth="200.0" HBox.hgrow="ALWAYS"/>
-                        </VBox>
-                        <VBox>
-                            <Label text="Amount"/>
-                            <TextField fx:id="amountField" promptText="e.g., 2" maxWidth="80.0"/>
-                        </VBox>
-                        <VBox>
-                            <Label text="Unit"/>
-                            <ComboBox fx:id="unitComboBox" promptText="Unit" maxWidth="100.0"/>
-                        </VBox>
-                        <Button fx:id="addIngredientButton" onAction="#handleAddIngredient">
-                            <graphic>
-                                <FontIcon iconLiteral="mdmz-plus"/>
-                            </graphic>
-                        </Button>
+                    <HBox spacing="10.0">
+                        <Button text="Add Ingredient" onAction="#handleAddIngredient"/>
+                        <Button text="Remove Selected Ingredient" onAction="#handleRemoveIngredient"/>
                     </HBox>
 
                 </VBox>

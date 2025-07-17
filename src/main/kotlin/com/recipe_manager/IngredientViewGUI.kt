@@ -13,8 +13,7 @@ class IngredientViewGUI {
     @FXML private lateinit var locationColumn: TableColumn<Ingredient, String>
     @FXML private lateinit var costColumn: TableColumn<Ingredient, Double>
     @FXML private lateinit var unitColumn: TableColumn<Ingredient, String>
-    @FXML private lateinit var currentAmountColumn: TableColumn<Ingredient, Double>
-
+    @FXML private lateinit var carbsColumn: TableColumn<Ingredient, Double>
 
     @FXML
     private fun initialize() {
@@ -23,9 +22,7 @@ class IngredientViewGUI {
         locationColumn.cellValueFactory = PropertyValueFactory("location")
         costColumn.cellValueFactory = PropertyValueFactory("cost")
         unitColumn.cellValueFactory = PropertyValueFactory("unitType")
-        currentAmountColumn.cellValueFactory = PropertyValueFactory("currentAmount")
-
-
+        carbsColumn.cellValueFactory = PropertyValueFactory("carbs")
 
         loadAndDisplayIngredients()
     }

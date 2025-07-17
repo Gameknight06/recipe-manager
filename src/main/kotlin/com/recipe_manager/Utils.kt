@@ -3,7 +3,7 @@ package com.recipe_manager
 import javafx.scene.control.TextFormatter
 import java.util.function.UnaryOperator
 
-val listOfUnits: MutableList<String> = mutableListOf("Cup(s)", "Tablespoon(s)", "Teaspoon(s)", "Ounce(s)", "Fluid Ounce(s)", "Pound(s)", "Quart(s)", "Liter(s)", "Milliliter(s)", "Milligram(s)", "Gram(s)", "Kilogram(s)")
+val listOfUnits: List<String> = UnitConverter.allUnits
 
 fun createDecimalTextFormatter(): TextFormatter<String> {
     val validDecimalText ="\\d*\\.?\\d*".toRegex()

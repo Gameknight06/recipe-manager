@@ -40,7 +40,7 @@
                             </HBox>
                         </left>
                         <center>
-                            <Label fx:id="recipeName" text="Recipe Name" styleClass="title-1"/>
+                            <Label fx:id="recipeName" text="Recipe Name:" styleClass="title-1"/>
                         </center>
                         <right>
                             <Button fx:id="editButton" onAction="#handleEditClick" styleClass="button-icon, action-button, small-recipe-button, elevated-1,accent, text-bold" BorderPane.alignment="CENTER">
@@ -51,14 +51,16 @@
                         </right>
                     </BorderPane>
                     <Separator/>
-                    <Label fx:id="recipeTime" text="Time to Cook" styleClass="title-4"/>
+                    <Label fx:id="recipeTime" text="Time to Cook:" styleClass="title-4"/>
                     <Separator/>
-                    <Label fx:id="recipeDescription" text="Description" styleClass="title-4" wrapText="true"/>
+                    <Label fx:id="recipeDescription" text="Description:" styleClass="title-4" wrapText="true"/>
                     <Separator/>
-                    <Label fx:id="recipeIngredients" text="Ingredients" styleClass="recipe-ingredients, title-4"/>
+                    <Label fx:id="recipeCost" text="Estimated Cost:" styleClass="title-4" wrapText="true"/>
+                    <Separator/>
+                    <Label fx:id="recipeIngredients" text="Ingredients:" styleClass="recipe-ingredients, title-4"/>
                     <ListView fx:id="ingredientsListView" prefHeight="150.0" styleClass="recipe-ingredients-list"/>
                     <Separator/>
-                    <Label fx:id="recipeInstructions" text="Instructions" styleClass="recipe-instructions, title-4" wrapText="true"/>
+                    <Label fx:id="recipeInstructions" text="Instructions:" styleClass="recipe-instructions, title-4" wrapText="true"/>
                 </VBox>
             </content>
         </ScrollPane>
