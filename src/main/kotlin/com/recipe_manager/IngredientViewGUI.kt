@@ -24,6 +24,9 @@ class IngredientViewGUI {
     @FXML private lateinit var unitColumn: TableColumn<Ingredient, String>
     @FXML private lateinit var defaultAmountColumn: TableColumn<Ingredient, Double>
 
+    /**
+     * Initializes the controller. This method is automatically called after the FXML file has been loaded.
+     */
     @FXML
     private fun initialize() {
 
@@ -36,16 +39,24 @@ class IngredientViewGUI {
         loadAndDisplayIngredients()
     }
 
+    /**
+     * Loads ingredients from the file system and populates the TableView.
+     */
     private fun loadAndDisplayIngredients() {
         val ingredients = FileOperations.loadIngredients()
         ingredientsTable.items = FXCollections.observableArrayList(ingredients.values.toList())
     }
 
 
-    private fun showEditIngredientDialog( ingredient: Ingredient) {
+    /**
+     * Displays a dialog for editing an ingredient's details. The dialog is pre-populated
+     * with the current details of the specified ingredient, allowing the user to make changes.
+     * Once the dialog is confirmed and the changes are valid, the updated ingredient replaces
+     * the original in the stored collection.
+     */
+    private fun showEditIngredientDialog(ingredient: Ingredient) {
             try {
                 val originalIngredientName = ingredient.name
-
                 val fxmlLoader = FXMLLoader(javaClass.getResource("EditIngredient.fxml"))
                 val dialogPane = fxmlLoader.load<DialogPane>()
                 val editIngredientController = fxmlLoader.getController<EditIngredientGUI>()
@@ -53,22 +64,12 @@ class IngredientViewGUI {
                 editIngredientController.setIngredientDetails(ingredient)
 
                 val dialog = Dialog<Ingredient>()
-                dialog.dialogPane = dialogPane
-                dialog.title = "Edit Ingredient"
-                dialog.initStyle(StageStyle.UNDECORATED)
-
-                val stage = rootBox.scene.window as Stage
-                dialog.initOwner(stage)
-                dialog.width = stage.widthProperty().value * 0.85
-                dialog.height = stage.heightProperty().value * 0.65
-                dialog.x = stage.x + (stage.width - dialog.width) / 2
-                dialog.y = stage.y + (stage.height - dialog.height) / 2
+                createDialogWindow(rootBox, dialogPane, dialog, "Edit Ingredient")
 
                 val saveButton = dialog.dialogPane.lookupButton(editIngredientController.saveButtonType) as Button
 
                 saveButton.addEventFilter(ActionEvent.ACTION) { event ->
-                    val newIngredient = editIngredientController.updateIngredientFromFields()
-                    if (newIngredient == null) {
+                    if (editIngredientController.updateIngredientFromFields() == null) {
                         event.consume()
                     }
                 }
@@ -89,6 +90,7 @@ class IngredientViewGUI {
                     FileOperations.saveIngredients(allIngredients)
 
                     println("Ingredient updated: ${updatedIngredient.name}")
+                    loadAndDisplayIngredients()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

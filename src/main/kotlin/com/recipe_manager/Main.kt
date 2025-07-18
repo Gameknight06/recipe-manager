@@ -30,13 +30,13 @@ class Main : Application() {
     override fun start(primaryStage: Stage) {
         Application.setUserAgentStylesheet(CupertinoDark().userAgentStylesheet)
 
-        val fxmlLoader = FXMLLoader(Main::class.java.getResource("/com/recipe_manager/RecipeView.fxml"))
+        val fxmlLoader = FXMLLoader(Main::class.java.getResource("/com/recipe_manager/RecipeView.fxml")) // Load the FXML file for the recipe view which will be the starting view
         val scene = Scene(fxmlLoader.load())
         scene.stylesheets.add(
             Main::class.java.getResource("/com/recipe_manager/styles/custom.css").toExternalForm()
         )
 
-        val image: Image = Image("com/recipe_manager/images/recipe.png")
+        val image: Image = Image("com/recipe_manager/images/recipe.png") // Adding the application icon
         primaryStage.icons.add(image)
 
         primaryStage.title = "Recipe Manager"

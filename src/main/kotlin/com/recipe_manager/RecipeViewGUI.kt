@@ -16,7 +16,6 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
-import javafx.stage.Stage
 import javafx.stage.StageStyle
 import org.kordamp.ikonli.feather.Feather
 import org.kordamp.ikonli.javafx.FontIcon
@@ -24,6 +23,12 @@ import org.kordamp.ikonli.material2.Material2AL
 import org.kordamp.ikonli.material2.Material2MZ
 
 
+/**
+ * A GUI class responsible for displaying and managing the main user interface for a recipe management application.
+ * This includes functionalities for viewing recipes, favorite recipes, ingredients, and editing or deleting recipes.
+ *
+ * This class also handles user interactions, loading content dynamically, and navigation within the application UI.
+ */
 class RecipeViewGUI {
 
     @FXML private lateinit var rootPane: StackPane
@@ -41,7 +46,10 @@ class RecipeViewGUI {
 
     private var isDrawerOpen = false
 
-
+    /**
+     * Initializes the controller. This method is automatically called after the FXML file has been loaded.
+     * It sets up initial view states, graphic icons for buttons, and event handlers.
+     */
     @FXML
     private fun initialize() {
         showRecipeView()
@@ -57,8 +65,8 @@ class RecipeViewGUI {
             }
         }
 
-        scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER;
-        scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER;
+        scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+        scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
 
         addButton.styleClass.add(Tweaks.NO_ARROW)
         addButton.popupSide = Side.TOP
@@ -71,9 +79,20 @@ class RecipeViewGUI {
     }
 
     private fun showFavoritesView() {
-        loadAndDisplayRecipes {recipe -> recipe.isFavorite}
+        loadAndDisplayRecipes { recipe -> recipe.isFavorite }
     }
 
+    /**
+     * Displays the ingredient view within the application's main content area.
+     *
+     * This method loads the IngredientView.fxml file using an FXMLLoader to create a visual representation
+     * of the ingredient management interface. The loaded content is then set as the content of the
+     * scroll pane within the primary application layout. If there is an error during the loading process,
+     * the exception is caught, logged, and an error message is printed to the console.
+     *
+     * This functionality is useful for managing the application's ingredient-related operations,
+     * allowing users to view and interact with ingredient details.
+     */
     private fun showIngredientView() {
         try {
             val ingredientViewLoader = FXMLLoader(javaClass.getResource("IngredientView.fxml"))
@@ -86,6 +105,15 @@ class RecipeViewGUI {
         }
     }
 
+    /**
+     * Displays the detailed view of a specific recipe.
+     *
+     * This method loads the `RecipeDetails.fxml` file, sets the provided `recipe` data to its controller,
+     * and then displays this detailed view within the `scrollPane`. It also sets up callbacks for
+     * navigating back to the recipe list and for editing the current recipe.
+     *
+     * @param recipe The [Recipe] object to display in detail.
+     */
     private fun showRecipeDetails(recipe: Recipe) {
         try {
             val recipeDetailsLoader = FXMLLoader(javaClass.getResource("RecipeDetails.fxml"))
@@ -103,6 +131,16 @@ class RecipeViewGUI {
         }
     }
 
+    /**
+     * Displays a dialog for editing an existing recipe.
+     *
+     * This method loads the `EditRecipe.fxml` file, initializes its controller with the provided recipe data,
+     * and displays it as a modal dialog. It handles saving the updated recipe back to the file system
+     * and refreshing the recipe display. The dialog is styled to be undecorated and sized relative
+     * to the main application window.
+     *
+     * @param recipe The [Recipe] object to be edited.
+     */
     private fun showEditRecipe(recipe: Recipe) {
         try {
             val originalRecipeName = recipe.name
@@ -114,22 +152,13 @@ class RecipeViewGUI {
             editRecipeController.setRecipeDetails(recipe)
 
             val dialog = Dialog<Recipe>()
-            dialog.dialogPane = dialogPane
-            dialog.title = "Edit Recipe"
-            dialog.initStyle(StageStyle.UNDECORATED)
+            createDialogWindow(rootPane, dialogPane, dialog, "Edit Recipe")
 
-            val stage = rootPane.scene.window as Stage
-            dialog.initOwner(stage)
-            dialog.width = stage.widthProperty().value * 0.85
-            dialog.height = stage.heightProperty().value * 0.65
-            dialog.x = stage.x + (stage.width - dialog.width) / 2
-            dialog.y = stage.y + (stage.height - dialog.height) / 2
 
             val saveButton = dialog.dialogPane.lookupButton(editRecipeController.saveButtonType) as Button
 
             saveButton.addEventFilter(ActionEvent.ACTION) { event ->
-                val newRecipe = editRecipeController.updateRecipeFromFields()
-                if (newRecipe == null) {
+                if (editRecipeController.updateRecipeFromFields() == null) {
                     event.consume()
                 }
             }
@@ -137,7 +166,6 @@ class RecipeViewGUI {
             dialog.setResultConverter { buttonType ->
                 if (buttonType == editRecipeController.saveButtonType) {
                     editRecipeController.updateRecipeFromFields()
-                    recipe
                 } else {
                     null
                 }
@@ -157,6 +185,12 @@ class RecipeViewGUI {
         }
     }
 
+    /**
+     * Toggles the navigation drawer's visibility and position.
+     *
+     * This method animates the navigation drawer sliding in or out from the left side of the screen.
+     * It also manages the visibility and mouse transparency of an overlay to prevent interaction with the main content when the drawer is open.
+     */
     private fun toggleNavDrawer() {
         val drawerWidth = 200.0
         val transition = TranslateTransition(javafx.util.Duration.millis(200.0), navDrawer)
@@ -177,6 +211,14 @@ class RecipeViewGUI {
         transition.play()
     }
 
+    /**
+     * Loads recipes from storage and displays them in the UI.
+     *
+     * This method clears the current recipe display, loads all recipes using `FileOperations.loadRecipes()`,
+     * and then iterates through them to create and add a visual card for each recipe to the `recipeContainer`.
+     * Each recipe card includes an image, title, description, stats, and buttons for editing, deleting,
+     * and marking as favorite.
+     */
     private fun loadAndDisplayRecipes(filter: (Recipe) -> Boolean = { true }) {
         scrollPane.content = recipeContainer
 
@@ -198,6 +240,7 @@ class RecipeViewGUI {
                         imageToDisplay = Image(recipe.imagePath)
                     } catch (e: Exception) {
                         println("Error loading image for recipe: ${recipe.name} from path: ${recipe.imagePath}")
+                        e.printStackTrace()
                         imageToDisplay = placeholderImage
                     }
                 } else {
@@ -228,7 +271,7 @@ class RecipeViewGUI {
                 val descriptionLabel = Label(recipe.description)
                 descriptionLabel.styleClass.add("recipe-description")
 
-                val statsLabel = Label("Time to make: ${recipe.timeToCook} | Times Made: ${recipe.timesMade} \nIngredients: ${recipe.returnIngredients().joinToString(", ")}")
+                val statsLabel = Label("Time to make: ${recipe.timeToCook} | Times Made: ${recipe.timesMade} \nIngredients: ${recipe.ingredients.keys.toList().joinToString(", ")}")
                 statsLabel.styleClass.add("recipe-stats")
 
                 val textContainer = VBox(titleLabel, descriptionLabel, statsLabel).apply {
@@ -248,9 +291,20 @@ class RecipeViewGUI {
                 val deleteButton = Button()
                 deleteButton.graphic = FontIcon(Feather.TRASH)
                 deleteButton.setOnAction {
-                    println("Delete button clicked for recipe: ${recipe.name}")
-                    FileOperations.deleteRecipe(recipe)
-                    loadAndDisplayRecipes(filter)
+                    val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
+                        title = "Confirm Recipe Deletion"
+                        headerText = "Are you sure you want to delete '${recipe.name}'?"
+                        contentText = "This action cannot be undone."
+                        initStyle(StageStyle.UNDECORATED)
+                        initOwner(rootPane.scene.window)
+                    }
+                    alert.showAndWait().ifPresent { buttonType ->
+                        if (buttonType == ButtonType.OK) {
+                            println("Deletion confirmed for recipe: ${recipe.name}")
+                            FileOperations.deleteRecipe(recipe)
+                            loadAndDisplayRecipes(filter)
+                        }
+                    }
                 }
                 deleteButton.styleClass.addAll("danger", "text-bold", "button-icon", "delete-recipe-button")
 
@@ -294,6 +348,13 @@ class RecipeViewGUI {
         Platform.exit()
     }
 
+    /**
+     * Handles the action when the "Add Recipe" button is clicked.
+     *
+     * This method loads the `AddRecipe.fxml` file to display a dialog for adding a new recipe.
+     * It sets up the dialog's properties, including its title, style, and ownership.
+     * Upon successful addition of a new recipe, it saves the recipe to the file system and refreshes the recipe display.
+     */
     @FXML
     private fun handleAddRecipeClick() {
         try {
@@ -302,20 +363,15 @@ class RecipeViewGUI {
             val addRecipeController = fxmlLoader.getController<AddRecipeGUI>()
 
             val dialog = Dialog<Recipe>()
-            dialog.dialogPane = dialogPane
-            dialog.title = "Add New Recipe"
-            dialog.initStyle(StageStyle.UNDECORATED)
-
-            val stage = rootPane.scene.window as Stage
-            dialog.initOwner(stage)
-
-            dialog.width = stage.widthProperty().value * 0.85
-            dialog.height = stage.heightProperty().value * 0.65
-
-            dialog.x = stage.x + (stage.width - dialog.width) / 2
-            dialog.y = stage.y + (stage.height - dialog.height) / 2
+            createDialogWindow(rootPane, dialogPane, dialog, "Add New Recipe")
 
             val saveButton = dialog.dialogPane.lookupButton(addRecipeController.saveButtonType) as Button
+
+            saveButton.addEventFilter(ActionEvent.ACTION) { event ->
+                if (addRecipeController.getRecipeData() == null) {
+                    event.consume()
+                }
+            }
 
             dialog.setResultConverter { buttonType ->
                 if (buttonType == addRecipeController.saveButtonType) {
@@ -337,6 +393,14 @@ class RecipeViewGUI {
         }
     }
 
+    /**
+     * Handles the action when the "Add Ingredient" button is clicked.
+     *
+     * This method loads the `AddIngredient.fxml` file to display a dialog for adding a new ingredient.
+     * It sets up the dialog's properties, including its title, style, and ownership.
+     * Upon successful addition of a new ingredient, it saves the ingredient to the file system.
+     * It also includes validation to prevent the dialog from closing if the ingredient data is invalid.
+     */
     @FXML
     private fun handleAddIngredientClick() {
         try {
@@ -345,24 +409,12 @@ class RecipeViewGUI {
             val addIngredientController = fxmlLoader.getController<AddIngredientGUI>()
 
             val dialog = Dialog<Ingredient>()
-            dialog.dialogPane = dialogPane
-            dialog.title = "Add New Ingredient"
-            dialog.initStyle(StageStyle.UNDECORATED)
-
-            val stage = rootPane.scene.window as Stage
-            dialog.initOwner(stage)
-
-            dialog.width = stage.widthProperty().value * 0.85
-            dialog.height = stage.heightProperty().value * 0.65
-
-            dialog.x = stage.x + (stage.width - dialog.width) / 2
-            dialog.y = stage.y + (stage.height - dialog.height) / 2
+            createDialogWindow(rootPane, dialogPane, dialog, "Add New Ingredient")
 
             val saveButton = dialog.dialogPane.lookupButton(addIngredientController.saveButtonType) as Button
 
             saveButton.addEventFilter(ActionEvent.ACTION) { event ->
-                val newRecipe = addIngredientController.getNewIngredient()
-                if (newRecipe == null) {
+                if (addIngredientController.getNewIngredient() == null) {
                     event.consume()
                 }
             }

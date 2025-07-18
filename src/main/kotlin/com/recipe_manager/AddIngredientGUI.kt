@@ -21,6 +21,13 @@ class AddIngredientGUI {
     @FXML lateinit var saveButtonType: ButtonType
     @FXML lateinit var error: Notification
 
+    /**
+     * Initializes the AddIngredientGUI by configuring UI components and setting up default values or behaviors.
+     *
+     * - Sets up an action to hide the error notification when closed.
+     * - Populates the `unitComboBox` with a list of available units.
+     * - Assigns decimal-only text formatters to input fields: `costField`, `carbsField`, `sugarField`, and `defaultAmountField`.
+     */
     @FXML
     private fun initialize() {
         error.setOnClose { error.isVisible = false }
@@ -33,6 +40,13 @@ class AddIngredientGUI {
     }
 
 
+    /**
+     * Creates a new `Ingredient` object based on the user input from the GUI fields.
+     * Validates that all required fields are filled and contain valid data before creating the ingredient.
+     * If any validation fails, an error message is displayed and `null` is returned.
+     *
+     * @return A new `Ingredient` object if all input is valid, or `null` if validation fails.
+     */
     fun getNewIngredient(): Ingredient? {
         val name = nameField.text
         val location = locationField.text

@@ -18,6 +18,17 @@ class AddIngredientToRecipeGUI {
 
     private var allIngredients = FileOperations.loadIngredients().values.toList()
 
+    /**
+     * Initializes the UI components and binds their properties for user interaction.
+     *
+     * - Populates the `ingredientComboBox` with a list of all available ingredients and sets a custom
+     *   `StringConverter` to manage display names.
+     * - Populates the `unitComboBox` with a list of all available units.
+     * - Applies a text formatter to the `amountField` to allow only valid numeric inputs.
+     *
+     * Additionally, it adds listeners to clear the `errorLabel` text whenever a modification is made
+     * to either the selected ingredient, amount, or unit in their respective components.
+     */
     @FXML
     fun initialize() {
         ingredientComboBox.items = FXCollections.observableArrayList(allIngredients)
@@ -35,6 +46,15 @@ class AddIngredientToRecipeGUI {
         unitComboBox.valueProperty().addListener { _ -> errorLabel.text = "" }
     }
 
+    /**
+     * Validates the user's input for ingredient selection, amount, and unit,
+     * and returns a `RecipeIngredient` object if the input is valid. If any of
+     * the input fields are invalid, it updates the `errorLabel` with an appropriate
+     * error message and returns null.
+     *
+     * @return a `RecipeIngredient` object containing the selected ingredient,
+     * amount, and unit if all inputs are valid; otherwise, null.
+     */
     fun validateAndGetResult(): RecipeIngredient? {
         val selectedIngredient = ingredientComboBox.selectionModel.selectedItem
         val amountText = amountField.text

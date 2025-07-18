@@ -4,23 +4,15 @@ import atlantafx.base.controls.Notification
 import atlantafx.base.util.DoubleStringConverter
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
-import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.fxml.FXMLLoader
-import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.control.cell.TextFieldTableCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
 import javafx.stage.FileChooser
-import javafx.stage.StageStyle
 import javafx.util.Callback
-import org.kordamp.ikonli.feather.Feather
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2OutlinedAL
 import java.io.File
@@ -46,7 +38,6 @@ class AddRecipeGUI {
     @FXML private lateinit var unitColumn: TableColumn<RecipeIngredient, String>
 
     private var selectedImagePath: String? = null
-    private val allIngredients = FileOperations.loadIngredients()
     private val recipeIngredients = mutableMapOf<String, RecipeIngredient>()
     private val addIngredientsObservableList = FXCollections.observableArrayList<RecipeIngredient>()
 
@@ -58,6 +49,16 @@ class AddRecipeGUI {
         setupIngredientsTable()
     }
 
+    /**
+     * Configures the ingredients table to enable editing and data binding for recipe ingredients.
+     *
+     * This method sets up the `ingredientsTableView` by making it editable and associating
+     * specific columns with properties of `RecipeIngredient` objects. It also defines how
+     * edits are handled in the table for each column.
+     *
+     * Editing event handlers are registered for the `amountColumn` and `unitColumn` to
+     * immediately update the corresponding `RecipeIngredient` object when a change is made.
+     */
     private fun setupIngredientsTable() {
         ingredientsTableView.isEditable = true
 
@@ -80,6 +81,21 @@ class AddRecipeGUI {
         }
     }
 
+    /**
+     * Handles the click event for selecting an image in the "Add Recipe" form.
+     *
+     * This method opens a file chooser dialog to allow the user to select an image file
+     * with one of the supported extensions (.jpg, .jpeg, .png). Upon successful selection,
+     * the selected image is set as a preview in the corresponding `ImageView` and the
+     * image path is stored for later use.
+     *
+     * - Configures a `FileChooser` with a title and file type filters for images.
+     * - Opens the file chooser dialog using the current window as a parent.
+     * - Updates the `imagePreview` with the selected image.
+     * - Sets the `selectedImagePath` to the URI of the selected image.
+     *
+     * If no file is selected, the method exits without making changes.
+     */
     @FXML
     private fun handleSelectImageClick() {
         val fileChooser = FileChooser()
@@ -95,51 +111,38 @@ class AddRecipeGUI {
         }
     }
 
+    /**
+     * Handles user interaction for adding a new ingredient to the recipe.
+     *
+     * - Invokes the `showAddIngredientDialog` method to display the input dialog for adding an ingredient.
+     * - Validates whether the input ingredient already exists within `recipeIngredients`.
+     * - If the ingredient exists, displays an error message to the user using `showError`.
+     * - If the ingredient is new, adds it to `recipeIngredients` and updates `addIngredientsObservableList`.
+     */
     @FXML
     private fun handleAddIngredient() {
-        try {
-            val fxmlLoader = FXMLLoader(javaClass.getResource("AddIngredientToRecipe.fxml"))
-            val dialogPane: DialogPane = fxmlLoader.load()
-            val controller = fxmlLoader.getController<AddIngredientToRecipeGUI>()
+        val newIngredient = showAddIngredientDialog(ingredientsTableView.scene.window)
 
-            val dialog = Dialog<RecipeIngredient>()
-            dialog.dialogPane = dialogPane
-            dialog.title = "Add Ingredient"
-            dialog.initOwner(ingredientsTableView.scene.window)
-            dialog.initStyle(StageStyle.UNDECORATED)
-
-
-            val addButton = dialog.dialogPane.lookupButton(controller.addButtonType)
-            addButton.addEventFilter(ActionEvent.ACTION) { e ->
-                if (controller.validateAndGetResult() == null) {
-                    e.consume()
-                }
+        newIngredient?.let {
+            if (recipeIngredients.containsKey(it.ingredient.name)) {
+                showError("Ingredient '${it.ingredient.name}' already exists in the recipe!")
+            } else {
+                recipeIngredients[it.ingredient.name] = it
+                addIngredientsObservableList.add(it)
             }
-
-            dialog.setResultConverter { buttonType ->
-                if (buttonType == controller.addButtonType) {
-                    controller.validateAndGetResult()
-                } else null
-            }
-
-            dialog.showAndWait().ifPresent { newRecipeIngredient ->
-                if (recipeIngredients.containsKey(newRecipeIngredient.ingredient.name)) {
-                    Alert(
-                        Alert.AlertType.WARNING,
-                        "'${newRecipeIngredient.ingredient.name}' is already in this recipe. You can edit its amount or unit directly in the table."
-                    ).showAndWait()
-                } else {
-                    recipeIngredients[newRecipeIngredient.ingredient.name] = newRecipeIngredient
-                    ingredientsTableView.items.add(newRecipeIngredient)
-                }
-            }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Alert(Alert.AlertType.ERROR, "Could not open the Add Ingredient dialog: ${e.message}").showAndWait()
         }
     }
 
+    /**
+     * Handles the removal of the selected ingredient from the recipe being created or edited.
+     *
+     * - Retrieves the currently selected ingredient in `ingredientsTableView`.
+     * - If no ingredient is selected, the method exits without performing any action.
+     * - Removes the selected ingredient from the `recipeIngredients` map using the ingredient's name as the key.
+     * - Removes the selected ingredient from the `addIngredientsObservableList` to update the UI.
+     *
+     * It ensures that both the internal recipe data and the UI remain in sync after the ingredient is removed.
+     */
     @FXML
     private fun handleRemoveIngredient() {
         val selectedIngredient = ingredientsTableView.selectionModel.selectedItem ?: return
@@ -148,6 +151,16 @@ class AddRecipeGUI {
         addIngredientsObservableList.remove(selectedIngredient)
     }
 
+    /**
+     * Retrieves recipe data from the provided input fields.
+     *
+     * This method validates that all required fields are filled, including name, cooking time,
+     * description, instructions, and ingredients. If any of these fields are blank or
+     * the ingredients are empty, an error message is displayed and the method returns `null`.
+     * Otherwise, it constructs and returns a `Recipe` object based on the current input data.
+     *
+     * @return A `Recipe` object if all fields are valid; otherwise, `null` if validation fails.
+     */
     fun getRecipeData(): Recipe? {
 
         if (nameField.text.isBlank() || timeToCookField.text.isBlank() || descriptionArea.text.isBlank() || instructionArea.text.isBlank() || recipeIngredients.isEmpty()) {
