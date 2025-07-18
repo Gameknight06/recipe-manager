@@ -16,6 +16,18 @@ data class Recipe(
     var imagePath: String? = null,
 )
 {
+    /**
+     * Calculates the total carbohydrate content for all ingredients in a recipe.
+     *
+     * This property computes the sum of the carbohydrate content for each ingredient
+     * based on its amount, unit, and nutritional information. The calculation involves:
+     * - Converting the ingredient's amount to its default unit type.
+     * - Determining the proportion of the ingredient's quantity relative to its default amount.
+     * - Multiplying the proportion by its carbohydrate content.
+     *
+     * Ingredients with a `defaultAmount` of 0.0 or those where unit conversion fails
+     * are excluded from the total calculation, contributing 0.0 to the sum.
+     */
     val totalCarbs: Double
         get() = ingredients.values.sumOf { recipeIngredient ->
             val ingredient = recipeIngredient.ingredient
@@ -28,6 +40,19 @@ data class Recipe(
             } ?: 0.0
         }
 
+
+    /**
+     * Calculates the total sugar content for all ingredients in a recipe.
+     *
+     * This property computes the sum of the sugar content for each ingredient
+     * based on its amount, unit, and nutritional information. The calculation involves:
+     * - Converting the ingredient's amount to its default unit type.
+     * - Determining the proportion of the ingredient's quantity relative to its default amount.
+     * - Multiplying the proportion by its sugar content.
+     *
+     * Ingredients with a `defaultAmount` of 0.0 or those where unit conversion fails
+     * are excluded from the total calculation, contributing 0.0 to the sum.
+     */
     val totalSugar: Double
         get() = ingredients.values.sumOf { recipeIngredient ->
             val ingredient = recipeIngredient.ingredient
@@ -40,6 +65,18 @@ data class Recipe(
             } ?: 0.0
         }
 
+    /**
+     * Calculates the total cost for all ingredients in a recipe.
+     *
+     * This property computes the sum of the cost for each ingredient
+     * based on its amount, unit, and cost. The calculation involves:
+     * - Converting the ingredient's amount to its default unit type.
+     * - Determining the proportion of the ingredient's quantity relative to its default amount.
+     * - Multiplying the proportion by its cost.
+     *
+     * Ingredients with a `defaultAmount` of 0.0 or those where unit conversion fails
+     * are excluded from the total calculation, contributing 0.0 to the sum.
+     */
     val estimatedCost: Double
         get() = ingredients.values.sumOf { recipeIngredient ->
             val ingredient = recipeIngredient.ingredient
@@ -59,10 +96,12 @@ data class Recipe(
         timesMade++
     }
 
-    fun returnIngredients(): List<String> {
-        return ingredients.keys.toList()
-    }
-
+    /**
+     * Converts the ingredients stored in the recipe into a list of `DisplayIngredients` objects,
+     * which include the name, amount, and unit of each ingredient.
+     *
+     * Returns A list of `DisplayIngredients` representing the details of each ingredient in the recipe.
+     */
     fun returnIngredientDetails(): List<DisplayIngredients> {
         return ingredients.values.map { recipeIngredient ->
             DisplayIngredients(recipeIngredient.ingredient.name, recipeIngredient.amount, recipeIngredient.unit)

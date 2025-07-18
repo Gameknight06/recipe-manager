@@ -24,6 +24,13 @@ class EditIngredientGUI {
 
     private lateinit var currentIngredient: Ingredient
 
+    /**
+     * Initializes the EditIngredientGUI by setting up the UI components and their behavior.
+     *
+     * - Configures the `error` message close behavior to hide the error message when closed.
+     * - Populates the `unitComboBox` with available units from the predefined `listOfUnits`.
+     * - Applies decimal-only `TextFormatter` to fields for cost, carbs, and sugar to enforce numeric input.
+     */
     @FXML
     private fun initialize() {
         error.setOnClose { error.isVisible = false }
@@ -34,6 +41,9 @@ class EditIngredientGUI {
         sugarField.textFormatter = createDecimalTextFormatter()
     }
 
+    /**
+     * Updates the UI fields with the details of the given ingredient.
+     */
     fun setIngredientDetails(ingredient: Ingredient) {
         currentIngredient = ingredient
         nameField.text = ingredient.name
@@ -45,6 +55,15 @@ class EditIngredientGUI {
         defaultAmountField.text = ingredient.defaultAmount.toString()
     }
 
+    /**
+     * Updates the current ingredient's details based on the values from the UI input fields.
+     *
+     * This method validates the input fields to ensure all required fields are filled and valid.
+     * If any field is blank or invalid, an error message is displayed, and the method returns without
+     * making any updates.
+     *
+     * If all fields are valid, the changes are applied to the `currentIngredient` instance.
+     */
     fun updateIngredientFromFields() {
         if (nameField.text.isBlank() || locationField.text.isBlank() || unitComboBox.selectionModel.selectedItem == null || costField.text.isBlank() || carbsField.text.isBlank() || sugarField.text.isBlank()) {
             showError("Please fill out all fields!")

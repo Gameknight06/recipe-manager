@@ -4,9 +4,7 @@ import atlantafx.base.controls.Notification
 import atlantafx.base.util.DoubleStringConverter
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
-import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.fxml.FXMLLoader
 import javafx.scene.control.*
 import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.scene.control.cell.PropertyValueFactory
@@ -14,7 +12,6 @@ import javafx.scene.control.cell.TextFieldTableCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.stage.FileChooser
-import javafx.stage.StageStyle
 import javafx.util.Callback
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.material2.Material2OutlinedAL
@@ -39,8 +36,16 @@ class EditRecipeGUI {
     private lateinit var currentRecipe: Recipe
     private val recipeIngredients = mutableMapOf<String, RecipeIngredient>()
 
+    /**
+     * Updates the GUI components with the details of the given recipe.
+     *
+     * This method populates various fields in the edit recipe form, such as the recipe's name,
+     * cooking time, description, instructions, and ingredients. It also handles loading and
+     * displaying the associated image for the recipe, if available.
+     */
     fun setRecipeDetails(recipe: Recipe) {
         currentRecipe = recipe
+
         nameField.text = recipe.name
         timeToCookField.text = recipe.timeToCook
         descriptionArea.text = recipe.description
@@ -66,6 +71,14 @@ class EditRecipeGUI {
         setupIngredientsTable()
     }
 
+    /**
+     * Configures the ingredients table for the recipe editing interface.
+     *
+     * This method makes the ingredients table editable and sets up its columns
+     *
+     * Handles editing actions by updating the underlying `recipeIngredients` data model
+     * whenever changes are made to the amount or unit in the respective columns.
+     */
     private fun setupIngredientsTable() {
         ingredientsTableView.isEditable = true
 
@@ -96,51 +109,43 @@ class EditRecipeGUI {
         ingredientsTableView.items.remove(selectedIngredient)
     }
 
+    /**
+     * Handles the logic for adding a new ingredient to the currently edited recipe.
+     *
+     * This method opens a dialog window for adding an ingredient to the recipe. The dialog allows
+     * the user to specify the ingredient, its amount, and its unit of measurement. It validates
+     * user input to ensure all required fields are filled correctly. If the input is valid, the
+     * ingredient is added to the recipe and displayed in the ingredients table view.
+     *
+     * If the ingredient already exists in the recipe, a warning alert is displayed, indicating
+     * the user can edit the ingredient directly within the table instead of adding it again.
+     *
+     * In case of any error while opening the dialog, an error alert is shown to the user.
+     */
     @FXML
     private fun handleAddIngredient() {
-        try {
-            val fxmlLoader = FXMLLoader(javaClass.getResource("AddIngredientToRecipe.fxml"))
-            val dialogPane: DialogPane = fxmlLoader.load()
-            val controller = fxmlLoader.getController<AddIngredientToRecipeGUI>()
+        val newIngredient = showAddIngredientDialog(ingredientsTableView.scene.window)
 
-            val dialog = Dialog<RecipeIngredient>()
-            dialog.dialogPane = dialogPane
-            dialog.title = "Add Ingredient"
-            dialog.initOwner(ingredientsTableView.scene.window)
-            dialog.initStyle(StageStyle.UNDECORATED)
-
-
-            val addButton = dialog.dialogPane.lookupButton(controller.addButtonType)
-            addButton.addEventFilter(ActionEvent.ACTION) { e ->
-                if (controller.validateAndGetResult() == null) {
-                    e.consume()
-                }
+        newIngredient?.let {
+            if (currentRecipe.ingredients.containsKey(it.ingredient.name)) {
+                showError("Ingredient '${it.ingredient.name}' already exists in the recipe!")
+            } else {
+                currentRecipe.ingredients[it.ingredient.name] = it
+                ingredientsTableView.items.add(it)
             }
-
-            dialog.setResultConverter { buttonType ->
-                if (buttonType == controller.addButtonType) {
-                    controller.validateAndGetResult()
-                } else null
-            }
-
-            dialog.showAndWait().ifPresent { newRecipeIngredient ->
-                if (currentRecipe.ingredients.containsKey(newRecipeIngredient.ingredient.name)) {
-                    Alert(
-                        Alert.AlertType.WARNING,
-                        "'${newRecipeIngredient.ingredient.name}' is already in this recipe. You can edit its amount or unit directly in the table."
-                    ).showAndWait()
-                } else {
-                    currentRecipe.ingredients[newRecipeIngredient.ingredient.name] = newRecipeIngredient
-                    ingredientsTableView.items.add(newRecipeIngredient)
-                }
-            }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Alert(Alert.AlertType.ERROR, "Could not open the Add Ingredient dialog: ${e.message}").showAndWait()
         }
     }
 
+    /**
+     * Handles the event triggered when the "Select Image" button is clicked.
+     *
+     * This method opens a file chooser dialog, allowing the user to select an image file
+     * (e.g., PNG, JPG, JPEG) to associate with the current recipe. Upon successful
+     * selection of a file, the image is previewed in the designated image preview area
+     * and its path is stored for later use.
+     *
+     * If no file is selected, the method performs no action.
+     */
     @FXML
     private fun handleSelectImageClick() {
         val fileChooser = FileChooser()
@@ -157,19 +162,55 @@ class EditRecipeGUI {
         }
     }
 
-    fun updateRecipeFromFields() {
-        if (nameField.text.isBlank() || timeToCookField.text.isBlank() || descriptionArea.text.isBlank() || instructionArea.text.isBlank() || recipeIngredients.isEmpty()) {
-            showError("Please fill out all recipe fields!")
-            return
-        }
-        currentRecipe.name = nameField.text
-        currentRecipe.timeToCook = timeToCookField.text
-        currentRecipe.description = descriptionArea.text
-        currentRecipe.instructions = instructionArea.text
-        currentRecipe.imagePath = selectedImagePath
-        currentRecipe.ingredients.clear()
-        currentRecipe.ingredients.putAll(recipeIngredients)
+    /**
+     * Updates the current recipe instance with data entered in the GUI fields.
+     *
+     * This method retrieves input values from various GUI components, such as name, time to cook,
+     * description, instructions, and image. It validates that all required fields are filled.
+     * If validation passes, it updates the properties of the current recipe with the field values.
+     *
+     * Additionally, it processes the ingredients from the GUI table to create a mapping of ingredient
+     * names to `RecipeIngredient` objects. The method validates that all ingredients in the table exist
+     * in the ingredient database. If an ingredient is not found, an error message is displayed and
+     * the recipe is not updated.
+     *
+     * @return The updated `Recipe` object if all fields are valid and the update process completes successfully.
+     *         Returns `null` in cases where validation fails or an error occurs during the update.
+     */
+    fun updateRecipeFromFields(): Recipe? {
+        val recipe = currentRecipe ?: return null
 
+        if (nameField.text.isBlank() || timeToCookField.text.isBlank() || descriptionArea.text.isBlank() || instructionArea.text.isBlank()) {
+            showError("Please fill out all recipe fields!")
+            return null
+        }
+
+        recipe.name = nameField.text
+        recipe.timeToCook = timeToCookField.text
+        recipe.description = descriptionArea.text
+        recipe.instructions = instructionArea.text
+        recipe.imagePath = selectedImagePath
+
+        val ingredientsFromTable = ingredientsTableView.items
+        val allIngredients = FileOperations.loadIngredients()
+        val updatedIngredientsMap = mutableMapOf<String, RecipeIngredient>()
+
+        for (displayIngredient in ingredientsFromTable) {
+            val fullIngredient = allIngredients[displayIngredient.ingredient.name]
+            if (fullIngredient != null) {
+                updatedIngredientsMap[displayIngredient.ingredient.name] = RecipeIngredient(
+                    ingredient = fullIngredient,
+                    amount = displayIngredient.amount,
+                    unit = displayIngredient.unit
+                )
+            } else {
+                showError("Ingredient '${displayIngredient.ingredient.name}' not found in database.")
+                return null
+            }
+        }
+        recipe.ingredients = updatedIngredientsMap
+
+        return recipe
     }
 
     private fun showError(message: String) {
